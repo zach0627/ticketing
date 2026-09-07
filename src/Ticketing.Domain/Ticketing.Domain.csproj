@@ -1,3 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- 座位的 Held／Sold 狀態只由 SeatRepository 的條件 UPDATE 產生，Domain 刻意沒有公開的
+       狀態轉換方法（設計文件 04 第 2.4 節）。但 EF 會材料化出這些狀態，Domain 測試也必須
+       能建出來驗證 IsAvailableAt，所以開一個 internal 的重建入口給測試專案，公開 API 維持不變。 -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ticketing.Domain.Tests" />
+  </ItemGroup>
+
 </Project>

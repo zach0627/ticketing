@@ -1,4 +1,4 @@
-using System.Reflection;
+using Ticketing.Domain.Common;
 
 namespace Ticketing.Domain.Tests;
 
@@ -17,7 +17,7 @@ public class ArchitectureGuardTests
     [Fact]
     public void Domain_references_nothing_outside_the_base_class_library()
     {
-        var domain = typeof(DomainAssemblyMarker).Assembly;
+        var domain = typeof(BookingRuleException).Assembly;
 
         var offenders = domain.GetReferencedAssemblies()
             .Select(a => a.Name!)
