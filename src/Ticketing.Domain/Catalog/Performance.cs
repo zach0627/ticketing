@@ -53,10 +53,21 @@ public sealed class Performance
 
     /// <summary>管理者暫停優先於時間窗口：暫停中一律回 Paused。</summary>
     public SalesStatus SalesStatusAt(DateTimeOffset now)
+        => SalesStatusAt(IsSalesPaused, SalesOpensAtUtc, SalesClosesAtUtc, now);
+
+    /// <summary>
+    /// 同一條規則的靜態版本，給**查詢投影**用。
+    ///
+    /// 唯讀查詢不載入 Performance 實體（那會白抓一堆欄位），只投影需要的三個欄位；
+    /// 但售票狀態的判斷不該因此被複製一份到 Queries 裡——複製就會漂移。
+    /// 抽成靜態純函式後，實體方法與查詢投影**呼叫的是同一段程式碼**。
+    /// </summary>
+    public static SalesStatus SalesStatusAt(bool isSalesPaused, DateTimeOffset salesOpensAtUtc,
+                                            DateTimeOffset salesClosesAtUtc, DateTimeOffset now)
     {
-        if (IsSalesPaused) return SalesStatus.Paused;
-        if (now < SalesOpensAtUtc) return SalesStatus.NotYetOnSale;
-        if (now >= SalesClosesAtUtc) return SalesStatus.SalesClosed;
+        if (isSalesPaused) return SalesStatus.Paused;
+        if (now < salesOpensAtUtc) return SalesStatus.NotYetOnSale;
+        if (now >= salesClosesAtUtc) return SalesStatus.SalesClosed;
         return SalesStatus.OnSale;
     }
 

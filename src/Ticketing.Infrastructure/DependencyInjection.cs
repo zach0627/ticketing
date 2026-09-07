@@ -3,12 +3,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ticketing.Application.Abstractions;
+using Ticketing.Application.Catalog;
 using Ticketing.Domain.Booking;
 using Ticketing.Domain.Catalog;
 using Ticketing.Domain.Common;
 using Ticketing.Domain.Orders;
 using Ticketing.Domain.Users;
 using Ticketing.Infrastructure.Persistence;
+using Ticketing.Infrastructure.Persistence.Queries;
 using Ticketing.Infrastructure.Persistence.Repositories;
 using Ticketing.Infrastructure.Persistence.Seeding;
 using Ticketing.Infrastructure.Security;
@@ -39,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<ISeatRepository, SeatRepository>();
         services.AddScoped<ISeatHoldRepository, SeatHoldRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+
+        // ── 唯讀查詢：投影成 DTO，不經過 Domain（ADR-5）──
+        services.AddScoped<ICatalogQueries, CatalogQueries>();
 
         // ── seed：CLI 與整合測試共用同一段程式 ──
         services.AddScoped<CatalogSeeder>();

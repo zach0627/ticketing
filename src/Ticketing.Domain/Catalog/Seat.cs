@@ -55,7 +55,15 @@ public sealed class Seat
     /// 同一條語意另外寫在座位圖投影與 <c>SeatRepository.TryHoldAsync</c> 的 WHERE，
     /// 三處必須一致，由整合測試 T08 保證。
     /// </summary>
-    public bool IsAvailableAt(DateTimeOffset now)
-        => Status == SeatStatus.Available
-        || (Status == SeatStatus.Held && HeldUntilUtc is { } until && until <= now);
+    public bool IsAvailableAt(DateTimeOffset now) => IsAvailableAt(Status, HeldUntilUtc, now);
+
+    /// <summary>
+    /// 同一條規則的靜態版本，給**座位圖投影**用（2,880 席不該載入成實體）。
+    /// 抽出來之後，記憶體判斷與畫面顯示呼叫的是同一段程式碼，只剩
+    /// <c>SeatRepository.TryHoldAsync</c> 的 SQL <c>WHERE</c> 是第二份表達——
+    /// 那一份無法避免（它必須在資料庫端原子執行），由整合測試 T08 綁住一致性。
+    /// </summary>
+    public static bool IsAvailableAt(SeatStatus status, DateTimeOffset? heldUntilUtc, DateTimeOffset now)
+        => status == SeatStatus.Available
+        || (status == SeatStatus.Held && heldUntilUtc is { } until && until <= now);
 }
