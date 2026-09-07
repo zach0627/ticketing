@@ -27,3 +27,14 @@ dotnet_sort_system_directives_first = true
 
 [*.md]
 trim_trailing_whitespace = false
+
+# ── EF Core 產生的 migration ──────────────────────────────
+# `dotnet ef migrations add` 產出的程式碼是工具寫的，不是手寫的，
+# 不該用手寫程式碼的風格規則衡量（它用 block-scoped namespace，會撞到 IDE0161
+# ＋ TreatWarningsAsErrors 而讓整個方案建置失敗）。
+# 這裡只關掉「風格」，正確性分析仍然有效。
+[**/Persistence/Migrations/*.cs]
+generated_code = true
+dotnet_diagnostic.IDE0161.severity = none
+dotnet_diagnostic.IDE0300.severity = none
+dotnet_diagnostic.IDE0028.severity = none

@@ -1,0 +1,671 @@
+{
+  "schemaVersion": 3,
+  "fictional": true,
+  "anchorRule": "以 seed 當天 UTC 00:00 為 anchor：StartsAt = anchor + startsAfterDays（時刻取 startsAtTaipei，+08:00 轉 UTC）；SalesOpens = anchor + salesOpenOffsetDays；SalesCloses = StartsAt − salesCloseMinutesBeforeStart。日期太舊時由管理者「重置」整批平移，不在啟動時自動改。",
+  "currency": "TWD",
+  "holdMinutes": 5,
+  "events": [
+    {
+      "id": 1,
+      "code": "C01",
+      "category": "Concert",
+      "title": "夜航之後",
+      "performer": "林予晴",
+      "genre": "流行",
+      "city": "台北",
+      "venue": "星港音樂館",
+      "description": "冷藍舞台與近距離歌聲，從城市夜晚唱到第一道曙光。",
+      "performanceId": 1,
+      "startsAfterDays": 14,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C01.png",
+      "publicImage": "/assets/events/C01.png",
+      "alt": "冷藍舞台與近距離歌聲，從城市夜晚唱到第一道曙光。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 2100,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1500,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 900,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "code": "C02",
+      "category": "Concert",
+      "title": "沿途有光",
+      "performer": "周以川",
+      "genre": "民謠流行",
+      "city": "台中",
+      "venue": "木序展演廳",
+      "description": "木吉他、旅途故事與一段留給觀眾合唱的夜晚。",
+      "performanceId": 2,
+      "startsAfterDays": 17,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C02.png",
+      "publicImage": "/assets/events/C02.png",
+      "alt": "木吉他、旅途故事與一段留給觀眾合唱的夜晚。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1600,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1200,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 800,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "code": "C03",
+      "category": "Concert",
+      "title": "噪音花園",
+      "performer": "逆風植栽",
+      "genre": "獨立搖滾",
+      "city": "高雄",
+      "venue": "南岸Live館",
+      "description": "三人樂團帶來不過度修飾的吉他與節奏，座位區也能感受現場能量。",
+      "performanceId": 3,
+      "startsAfterDays": 21,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C03.png",
+      "publicImage": "/assets/events/C03.png",
+      "alt": "三人樂團帶來不過度修飾的吉他與節奏，座位區也能感受現場能量。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1800,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1300,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 900,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "code": "C04",
+      "category": "Concert",
+      "title": "午夜留聲",
+      "performer": "許若棠爵士四重奏",
+      "genre": "爵士",
+      "city": "台北",
+      "venue": "暮色音樂室",
+      "description": "人聲與爵士四重奏的近距離對話，適合靜心聆聽。",
+      "performanceId": 4,
+      "startsAfterDays": 24,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C04.png",
+      "publicImage": "/assets/events/C04.png",
+      "alt": "人聲與爵士四重奏的近距離對話，適合靜心聆聽。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1500,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1100,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 700,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "code": "C05",
+      "category": "Concert",
+      "title": "微光頻率",
+      "performer": "Signal Room",
+      "genre": "電子",
+      "city": "台南",
+      "venue": "光域展演倉",
+      "description": "電子節奏與低彩度燈光構成一場有座位的沉浸演出。",
+      "performanceId": 5,
+      "startsAfterDays": 28,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C05.png",
+      "publicImage": "/assets/events/C05.png",
+      "alt": "電子節奏與低彩度燈光構成一場有座位的沉浸演出。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1900,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1400,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 1000,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "code": "C06",
+      "category": "Concert",
+      "title": "山海之間",
+      "performer": "江沐禾",
+      "genre": "民謠",
+      "city": "花蓮",
+      "venue": "海風草地舞台",
+      "description": "夕陽、木吉他與山海故事；戶外場採固定編號座席。",
+      "performanceId": 6,
+      "startsAfterDays": 31,
+      "startsAtTaipei": "16:00",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C06.png",
+      "publicImage": "/assets/events/C06.png",
+      "alt": "夕陽、木吉他與山海故事",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1200,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 900,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 600,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "code": "C07",
+      "category": "Concert",
+      "title": "慢速心跳",
+      "performer": "陸承恩",
+      "genre": "R&B",
+      "city": "新竹",
+      "venue": "流光演藝廳",
+      "description": "溫暖人聲搭配柔軟節奏，讓忙碌的夜晚慢下來。",
+      "performanceId": 7,
+      "startsAfterDays": 35,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C07.png",
+      "publicImage": "/assets/events/C07.png",
+      "alt": "溫暖人聲搭配柔軟節奏，讓忙碌的夜晚慢下來。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1700,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1300,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 900,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "code": "C08",
+      "category": "Concert",
+      "title": "弦上風景",
+      "performer": "青杉弦樂團",
+      "genre": "跨界古典",
+      "city": "台中",
+      "venue": "青杉室內樂廳",
+      "description": "四把弦樂器描繪季節與旅程，演出中請保持安靜。",
+      "performanceId": 8,
+      "startsAfterDays": 38,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C08.png",
+      "publicImage": "/assets/events/C08.png",
+      "alt": "四把弦樂器描繪季節與旅程，演出中請保持安靜。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1400,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1000,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 600,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "code": "C09",
+      "category": "Concert",
+      "title": "街角回聲",
+      "performer": "程以律",
+      "genre": "嘻哈",
+      "city": "台北",
+      "venue": "城市節拍館",
+      "description": "以城市日常為靈感的節拍與說唱，整場採指定座位。",
+      "performanceId": 9,
+      "startsAfterDays": 42,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C09.png",
+      "publicImage": "/assets/events/C09.png",
+      "alt": "以城市日常為靈感的節拍與說唱，整場採指定座位。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1600,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1200,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 800,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "code": "C10",
+      "category": "Concert",
+      "title": "平行星球",
+      "performer": "Orbit Four",
+      "genre": "團體流行",
+      "city": "高雄",
+      "venue": "曜石演藝中心",
+      "description": "四人團體帶來舞蹈、和聲與一場明亮的週末演出。",
+      "performanceId": 10,
+      "startsAfterDays": 45,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C10.png",
+      "publicImage": "/assets/events/C10.png",
+      "alt": "四人團體帶來舞蹈、和聲與一場明亮的週末演出。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 2400,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1800,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 1200,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "code": "C11",
+      "category": "Concert",
+      "title": "雨停以前",
+      "performer": "白映寧",
+      "genre": "鋼琴",
+      "city": "台南",
+      "venue": "白石音樂廳",
+      "description": "鋼琴獨奏與短篇故事，從一個音符開始靠近彼此。",
+      "performanceId": 11,
+      "startsAfterDays": 49,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/C11.png",
+      "publicImage": "/assets/events/C11.png",
+      "alt": "鋼琴獨奏與短篇故事，從一個音符開始靠近彼此。",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 1300,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 900,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 500,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "code": "C12",
+      "category": "Concert",
+      "title": "港灣邊界",
+      "performer": "潮線樂團",
+      "genre": "另類搖滾",
+      "city": "基隆",
+      "venue": "潮汐戶外劇場",
+      "description": "海風中的晚場搖滾；本場提供候位室，方便展示公平入場流程。",
+      "performanceId": 12,
+      "startsAfterDays": 52,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 100,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": true,
+      "image": "素材/活動封面/C12.png",
+      "publicImage": "/assets/events/C12.png",
+      "alt": "海風中的晚場搖滾",
+      "sections": [
+        {
+          "code": "A",
+          "name": "前區",
+          "price": 2000,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "B",
+          "name": "中區",
+          "price": 1500,
+          "rows": 5,
+          "seatsPerRow": 12
+        },
+        {
+          "code": "C",
+          "name": "後區",
+          "price": 1000,
+          "rows": 5,
+          "seatsPerRow": 12
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "code": "S01",
+      "category": "Sport",
+      "title": "港都海鷗 vs 山城野牛",
+      "performer": "港都海鷗／山城野牛",
+      "genre": "棒球",
+      "city": "高雄",
+      "venue": "晴灣棒球場",
+      "description": "虛構友誼賽；可選內野、沿線或外野指定席，支援家庭連號配位。",
+      "performanceId": 13,
+      "startsAfterDays": 16,
+      "startsAtTaipei": "17:00",
+      "durationMinutes": 210,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/S01.png",
+      "publicImage": "/assets/events/S01.png",
+      "alt": "虛構友誼賽",
+      "sections": [
+        {
+          "code": "A",
+          "name": "內野",
+          "price": 1000,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "B",
+          "name": "沿線",
+          "price": 700,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "C",
+          "name": "外野",
+          "price": 400,
+          "rows": 5,
+          "seatsPerRow": 16
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "code": "S02",
+      "category": "Sport",
+      "title": "星城疾風 vs 河岸巨人",
+      "performer": "星城疾風／河岸巨人",
+      "genre": "籃球",
+      "city": "台中",
+      "venue": "星城體育館",
+      "description": "室內籃球對戰；依近場、側翼與上層看台分區，全區編號入座。",
+      "performanceId": 14,
+      "startsAfterDays": 23,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 120,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/S02.png",
+      "publicImage": "/assets/events/S02.png",
+      "alt": "室內籃球對戰",
+      "sections": [
+        {
+          "code": "A",
+          "name": "近場",
+          "price": 1400,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "B",
+          "name": "側翼",
+          "price": 1000,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "C",
+          "name": "上層",
+          "price": 600,
+          "rows": 5,
+          "seatsPerRow": 16
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "code": "S03",
+      "category": "Sport",
+      "title": "青原FC vs 白港FC",
+      "performer": "青原FC／白港FC",
+      "genre": "足球",
+      "city": "台北",
+      "venue": "青原足球場",
+      "description": "傍晚足球友誼賽；主看台、側看台與球門後方皆為固定座位。",
+      "performanceId": 15,
+      "startsAfterDays": 30,
+      "startsAtTaipei": "19:30",
+      "durationMinutes": 120,
+      "salesOpenOffsetDays": -1,
+      "salesCloseMinutesBeforeStart": 60,
+      "queueEnabled": false,
+      "image": "素材/活動封面/S03.png",
+      "publicImage": "/assets/events/S03.png",
+      "alt": "傍晚足球友誼賽",
+      "sections": [
+        {
+          "code": "A",
+          "name": "主看台",
+          "price": 1100,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "B",
+          "name": "側看台",
+          "price": 800,
+          "rows": 5,
+          "seatsPerRow": 16
+        },
+        {
+          "code": "C",
+          "name": "球門後",
+          "price": 500,
+          "rows": 5,
+          "seatsPerRow": 16
+        }
+      ]
+    }
+  ],
+  "limitsRule": "每人每場上限（Concert 4 / Sport 6）與是否允許連號配位由 Domain 的 PurchasePolicy 依 category 決定，不在本檔、不存資料表。",
+  "queueRule": "queueEnabled 保留給第二階段的候位室（17）；第一版 seeder 忽略它。"
+}

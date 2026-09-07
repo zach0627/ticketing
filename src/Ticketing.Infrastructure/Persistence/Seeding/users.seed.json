@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 3,
+  "users": [
+    { "email": "alice@example.test",  "displayName": "林安琪",     "role": "Customer" },
+    { "email": "bob@example.test",    "displayName": "陳柏宇",     "role": "Customer" },
+    { "email": "family@example.test", "displayName": "王家瑋",     "role": "Customer" }
+  ],
+  "rules": "只在 Seed:PresetUsers:Enabled=true 時建立；密碼來自 Seed:PresetUsers:Password（user-secrets 或 App Service 設定），不在本檔。管理者由 Seed:Admin:Email / Seed:Admin:Password 指定，不在本檔。example.test 是保留網域，不會寄信。"
+}
