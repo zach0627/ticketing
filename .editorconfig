@@ -1,0 +1,29 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+trim_trailing_whitespace = true
+
+[*.{cs,csproj,props,targets,json,yml,yaml,ts,tsx,js,jsx,css,html}]
+indent_size = 2
+
+[*.cs]
+indent_size = 4
+
+# ── Mapperly：對應漏欄位必須是編譯錯誤，不是警告（設計文件 03 第 4.2 節）──
+# RMG012：目標欄位找不到來源
+dotnet_diagnostic.RMG012.severity = error
+# RMG020：來源欄位未使用，必須明確 [MapperIgnoreSource]
+dotnet_diagnostic.RMG020.severity = error
+
+# ── C# 風格 ──
+csharp_style_namespace_declarations = file_scoped:warning
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
+dotnet_sort_system_directives_first = true
+
+[*.md]
+trim_trailing_whitespace = false

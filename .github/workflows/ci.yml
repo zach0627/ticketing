@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  # 併發測試要用的 SQL Server 映像，固定 digest 而非 2022-latest。
+  # 與本機開發容器同一個映像（設計文件 10 第 1.2 節：latest 更新會讓結果不可重現）。
+  MSSQL_IMAGE: mcr.microsoft.com/mssql/server@sha256:ba4c8329f48fb8f02e1416be6a930ebfd71268caee78aa985f3af4315e457c89
+
+jobs:
+  # 機密外洩防線第三道（前兩道是 .gitignore 與 GitHub Push Protection）。
+  # 掃全歷史，抓 GitHub 內建規則認不出的自訂金鑰，例如 Jwt:SigningKey。
+  secret-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # gitleaks 要看完整歷史，不是只看最新 commit
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan repository history
+        run: gitleaks git --config .gitleaks.toml --redact --verbose
+
+  # Domain 與 Application 測試：純物件與替身，秒級，不需要 Docker。
+  build-and-unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json     # 版本只定義一次，不在這裡寫死第二份
+      - name: Restore
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+      - name: Domain tests
+        run: dotnet test tests/Ticketing.Domain.Tests --no-build --configuration Release
+      - name: Application tests
+        run: dotnet test tests/Ticketing.Application.Tests --no-build --configuration Release
+
+  # ⭐ 這個 job 是併發正確性的權威門檻。
+  # 開發機是 arm64，SQL Server 容器在上面是官方未支援的模擬環境；
+  # ubuntu-latest 是原生 x86-64 且預裝 Docker，Testcontainers 直接可用。
+  # 階段 1 只有主機契約測試；T01～T24／H01～H04 於階段 3 之後陸續加入。
+  integration:
+    runs-on: ubuntu-latest
+    needs: build-and-unit
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Confirm runner is x64 with Docker
+        run: |
+          echo "arch: $(uname -m)"
+          docker version --format 'docker: {{.Server.Version}}'
+      - name: Api integration tests
+        run: dotnet test tests/Ticketing.Api.Tests --configuration Release
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build

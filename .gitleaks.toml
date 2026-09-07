@@ -1,0 +1,38 @@
+# gitleaks 設定：沿用內建規則，再加上本專案自己的金鑰格式。
+# GitHub Push Protection 只認得已知廠商的金鑰格式（Azure、AWS、Google…），
+# 我們自訂的 Jwt:SigningKey 是一段隨機 base64，它認不出來，所以要在這裡補。
+# 設計文件 22 第 3 節。
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "ticketing-jwt-signing-key"
+description = "JWT 簽章金鑰疑似寫成實際值"
+regex = '''(?i)"?(Jwt__SigningKey|Jwt:SigningKey|SigningKey)"?\s*[:=]\s*"?[A-Za-z0-9+/=]{24,}"?'''
+tags = ["ticketing", "jwt"]
+
+[[rules]]
+id = "ticketing-sql-connection-string"
+description = "SQL 連線字串含明文密碼"
+regex = '''(?i)(Server|Data Source)\s*=[^"'\n]{3,}(Password|Pwd)\s*=\s*[^;"'\s]{3,}'''
+tags = ["ticketing", "connection-string"]
+
+[[rules]]
+id = "ticketing-seed-password"
+description = "seed 帳號密碼疑似寫成實際值"
+# gitleaks 用 RE2，不支援 negative lookahead；YOUR_ 佔位符交給下方 allowlist 排除。
+regex = '''(?i)"?(Seed__(Admin|PresetUsers)__Password|Seed:(Admin|PresetUsers):Password)"?\s*[:=]\s*"?[^"'\s;]{4,}"?'''
+tags = ["ticketing", "seed"]
+
+[allowlist]
+description = "設計文件與範本中的佔位符不算外洩"
+regexTarget = "line"
+regexes = [
+  '''YOUR_[A-Z_]+''',
+  '''\.apps\.googleusercontent\.com''',   # Google Client ID 是公開值（設計文件 22 第 2 節）
+]
+paths = [
+  '''(^|/)README\.md$''',
+  '''(^|/)AGENTS\.md$''',
+]

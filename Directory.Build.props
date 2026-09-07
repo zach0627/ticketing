@@ -1,0 +1,19 @@
+<Project>
+
+  <!-- 全部專案共用的編譯設定。版本在 Directory.Packages.props，這裡只放建置屬性。 -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- 警告即錯誤：依賴方向、未使用參數、可為 null 的違規都會擋下建置。
+         這是「架構規則由編譯器保證」的一部分，不要為了讓建置過而關掉。 -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- 產生的組件不要帶上機器路徑等雜訊 -->
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>

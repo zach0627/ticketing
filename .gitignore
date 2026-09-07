@@ -1,0 +1,41 @@
+# ── .NET ──────────────────────────────────────────────
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userprefs
+artifacts/
+TestResults/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+# ── 機密：絕不進版控（設計文件 22）────────────────────
+# user-secrets 本來就存在 ~/.microsoft/usersecrets/，不在 repo 內；
+# 這裡再擋掉可能被手動建立的本機覆寫檔與環境變數檔。
+appsettings.*.local.json
+appsettings.Local.json
+*.env
+.env
+.env.*
+!.env.example
+secrets.json
+
+# ── Node / 前端 ───────────────────────────────────────
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ── IDE ───────────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# ── macOS ─────────────────────────────────────────────
+.DS_Store
