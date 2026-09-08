@@ -163,4 +163,6 @@ repo 內沒有任何機密。本機設定走 `dotnet user-secrets`（存在 `~/.
 | App Service → Azure SQL | System-assigned Managed Identity（連線字串裡沒有密碼；SQL 伺服器是 Entra-only 驗證） |
 | 部署身分的權限 | Website Contributor，scope 只在那一個 Web App |
 
+開發機**沒有常駐的防火牆例外**：要連雲端資料庫時用 `deploy/scripts/db-access.sh open`，用完 `close`。留一條長期規則的問題不是不方便——離開那個地點後，那個 IP 會被 ISP 配給別人，規則還在就等於為陌生人開著。
+
 Google Client ID 是公開值，會出現在前端原始碼與每一個網路請求裡，這是設計上正確的。
