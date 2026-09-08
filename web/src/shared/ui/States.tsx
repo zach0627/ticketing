@@ -1,8 +1,31 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ApiError } from '../api/http';
 
+/** 實測：Azure SQL serverless 從 auto-pause 醒來要 30～60 秒（設計文件 09 第 5 節）。 */
+const COLD_START_HINT_AFTER_MS = 4_000;
+
 export function Spinner({ label = '載入中…' }: { label?: string }) {
-  return <p className="state state--loading" role="status">{label}</p>;
+  // 修好連線重試之後，冷啟動不再是「錯誤」，而是「一個很久的等待」——
+  // 使用者看到的是一個沉默轉圈一分鐘的畫面，跟壞掉沒兩樣。
+  // 所以等待超過幾秒就把原因講出來。ErrorMessage 那邊的提示照舊留著，
+  // 因為連線重試耗盡（約 181 秒）之後仍然會失敗。
+  const [slow, setSlow] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), COLD_START_HINT_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="state state--loading" role="status">
+      <p>{label}</p>
+      {slow && (
+        <p className="state__hint">
+          資料庫閒置後會自動暫停以節省費用，正在喚醒——大約需要一分鐘，請不要重新整理。
+        </p>
+      )}
+    </div>
+  );
 }
 
 export function ErrorMessage({ error }: { error: unknown }) {
@@ -25,7 +48,8 @@ export function ErrorMessage({ error }: { error: unknown }) {
       <p>{message}</p>
       {mightBeColdStart && (
         <p className="state__hint">
-          如果這是你今天第一次打開，資料庫可能正在喚醒——請等幾秒再重新整理。
+          如果這是你今天第一次打開，資料庫可能正在喚醒（實測約 30～60 秒）——
+          稍等一下再重新整理。
         </p>
       )}
       {traceId && <p className="state__trace">traceId：{traceId}</p>}
