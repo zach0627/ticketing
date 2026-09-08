@@ -8,6 +8,12 @@
 
 [![CI](https://github.com/zach0627/ticketing/actions/workflows/ci.yml/badge.svg)](https://github.com/zach0627/ticketing/actions/workflows/ci.yml)
 
+**線上版：<https://gentle-plant-0058db400.6.azurestaticapps.net>**
+
+> 第一次開啟大約要等一分鐘。資料庫用的是 Azure SQL 的免費額度，閒置後會自動暫停以節省費用，
+> 第一個請求要等它醒來（實測 54 秒）。這是刻意接受的取捨——換來的是額度用完自動停機、不會產生費用。
+> 頁面在載入超過幾秒後會把原因顯示出來。
+
 ---
 
 ## 這個專案在解決什麼
@@ -35,7 +41,7 @@
 | 5 | 註冊登入（密碼 ＋ Google） | ✅ |
 | 6 | 保留與付款 | ✅ |
 | 7 | 管理後台與背景通知 | ✅ |
-| 8 | Azure 部署 | ⬜ |
+| 8 | Azure 部署 | ✅ |
 | 9 | 面試包裝（README、展示腳本、Q&A 對照） | ✅ |
 
 ---
@@ -119,7 +125,7 @@ dotnet test           # 261 個測試
 |---|---|---|---|
 | `Ticketing.Domain.Tests` | 84 | **規則對**：狀態機、到期邊界、上限、連號搜尋 | xUnit，純物件，秒級 |
 | `Ticketing.Application.Tests` | 66 | **流程對**：哪個條件丟哪個錯、哪個相依**沒有**被呼叫 | ＋ NSubstitute ＋ FakeTimeProvider |
-| `Ticketing.Api.Tests` | 111 | **資料對**：併發、冪等、約束、授權、重置 | ＋ WebApplicationFactory ＋ Testcontainers（真 SQL Server） |
+| `Ticketing.Api.Tests` | 114 | **資料對**：併發、冪等、約束、授權、重置 | ＋ WebApplicationFactory ＋ Testcontainers（真 SQL Server） |
 
 併發測試不是「同時發幾個請求看結果」——關鍵案例用**測試裝飾器把一方停在已取得資料庫鎖的那一刻**，讓另一方確實排隊，再放行，而且兩個方向各跑一次。「commit 成功但回應遺失」用 EF 的交易攔截器做出來。
 
@@ -138,6 +144,8 @@ dotnet test           # 261 個測試
 - **背景通知會掉。** 有界佇列、程序重啟就丟——沒有任何票務狀態依賴它；要保證送達得換 Outbox。
 - **「一鍵重置」是展示功能**，商用系統不會有刪掉所有訂單的按鈕。
 - **四個專案的代價**是介面與跨專案跳轉；換來的是依賴方向由編譯器保證、以及不連資料庫就能測流程。
+- **雲端跑在免費層**：App Service F1（每日 60 CPU 分鐘、無 Always On）＋ Azure SQL serverless（閒置自動暫停）。不能拿它做壓測，第一個要換掉的是 F1。
+- **限流在雲端會退化成全站共用額度**。App Service 上沒辦法列舉可信代理位址，而清空 `KnownProxies` 等於相信任何人送來的 `X-Forwarded-For`——那會讓限流形同虛設。所以刻意不啟用 `ForwardedHeaders`，代價講明白。
 
 每一項的升級路徑都寫在設計文件裡。
 
@@ -146,5 +154,13 @@ dotnet test           # 261 個測試
 ## 機密
 
 repo 內沒有任何機密。本機設定走 `dotnet user-secrets`（存在 `~/.microsoft/usersecrets/`，在 repo 之外），雲端走 App Service 應用程式設定。三道防線：`.gitignore`、GitHub Push Protection、CI 的 gitleaks job。
+
+雲端這條線上**沒有任何長期密鑰**：
+
+| 連線 | 憑證 |
+|---|---|
+| GitHub Actions → Azure | OIDC federated credential（短期 token，不是 publish profile） |
+| App Service → Azure SQL | System-assigned Managed Identity（連線字串裡沒有密碼；SQL 伺服器是 Entra-only 驗證） |
+| 部署身分的權限 | Website Contributor，scope 只在那一個 Web App |
 
 Google Client ID 是公開值，會出現在前端原始碼與每一個網路請求裡，這是設計上正確的。
