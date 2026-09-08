@@ -46,8 +46,10 @@ public sealed class AuthService(
         }
         catch (UserIdentityConflictException conflict) when (conflict.Conflict == UserIdentityConflict.Email)
         {
-            // 併發註冊：兩個請求都通過了上面的 EmailExists，其中一個撞唯一索引
-            logger.LogInformation("RegisterRaceLost {Email}", email);
+            // 併發註冊：兩個請求都通過了上面的 EmailExists，其中一個撞唯一索引。
+            // ⚠️ 這裡**不記 Email**——設計文件 10 第 3 節：log 不得含 Email、密碼、token、連線字串。
+            // 要追是哪一次請求，靠 middleware 推進 LogContext 的 TraceId，回應裡也有同一個值。
+            logger.LogInformation("RegisterRaceLost");
             throw new BookingRuleException(ErrorCode.EmailAlreadyRegistered, "此 Email 已註冊");
         }
 

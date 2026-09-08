@@ -94,7 +94,9 @@ public sealed class SeedRunner(
 
             user.PromoteToAdmin();
             await uow.SaveChangesAsync(token);
-            logger.LogInformation("已將 {Email} 升為管理者", normalized);
+            // 記 Id 不記 Email：log 不得含 Email（設計文件 10 第 3 節），
+            // 而操作者本來就知道自己輸入了哪個 Email——找不到的話上面已經回報過了。
+            logger.LogInformation("AdminPromoted {UserId}", user.Id);
             return true;
         }, ct);
     }

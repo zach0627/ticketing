@@ -33,6 +33,37 @@ jobs:
       - name: Scan repository history
         run: gitleaks git --config .gitleaks.toml --redact --verbose
 
+  # 兩條「安靜腐爛」的規則，用 grep 守。
+  # 兩條都是階段 8 在**已部署的環境**上讀 log 才發現被違反的——
+  # 沒有任何測試會因此變紅，所以要有一道獨立的檢查。
+  naming-and-log-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 對外文字不得出現界定範圍用的字眼
+        run: |
+          # 清單在 .github/naming-blocklist.txt（設計文件 12 第 3 節）。
+          # 樣板刻意不寫在這裡——寫在這裡的話 grep 會掃到自己而永遠紅燈。
+          grep -v '^#' .github/naming-blocklist.txt | grep -v '^$' > /tmp/blocklist
+          if grep -rniEf /tmp/blocklist src web/src README.md .github \
+               --exclude-dir=node_modules --exclude=naming-blocklist.txt; then
+            echo "::error::上面這些位置出現了只該存在於設計文件的字眼（設計文件 12 第 3 節）"
+            exit 1
+          fi
+          echo "OK：沒有出現。"
+
+      - name: log 樣板不得含 Email
+        run: |
+          # 設計文件 10 第 3 節：log 可以有 holdId／orderId／performanceId，
+          # 不能有 Email、密碼、token、連線字串。
+          if grep -rnE 'Log[A-Za-z]*\("[^"]*\{Email\}' src --include='*.cs'; then
+            echo "::error::log 樣板帶了 Email（設計文件 10 第 3 節）"
+            exit 1
+          fi
+          echo "OK：沒有出現。"
+
   # Domain 與 Application 測試：純物件與替身，秒級，不需要 Docker。
   build-and-unit:
     runs-on: ubuntu-latest

@@ -93,6 +93,10 @@ public sealed class AdminService(
                 ["confirmation"] = request.Confirmation
             });
 
+        // commit 之後要記的數字。委派可能被 ExecutionStrategy 重跑，所以每次都覆蓋，
+        // 最後一次成功的那次才算數；重播時它會是 null，下面的 !IsReplay 已經擋掉。
+        ResetResult? committed = null;
+
         var response = await uow.ExecuteInTransactionAsync(async token =>
         {
             // 依 Id 升序逐筆取得**所有**場次的排他鎖。全部拿到才能開始改資料——
@@ -121,6 +125,7 @@ public sealed class AdminService(
             var result = new ResetResult(counts.Orders, counts.Holds, seatsReleased,
                                          earliest.AddDays(shiftDays));
             var json = PublicJson.Serialize(result);
+            committed = result;
 
             admin.AddAudit(actorId, ResetAction, operationId, fingerprint,
                            detailsJson: PublicJson.Serialize(new { shiftDays, salesOpensAtUtc = salesOpensAt }),
@@ -130,7 +135,13 @@ public sealed class AdminService(
             return new AdminOperationResponse(json, IsReplay: false);
         }, ct);
 
-        if (!response.IsReplay) logger.LogWarning("DemoDataReset {ActorId}", actorId);
+        // 事件名照設計文件 10 第 3 節的固定清單：AdminReset {ActorId} {OrdersDeleted}
+        // {HoldsDeleted}，再多帶釋放席次。命名規則見設計文件 12 第 3 節——
+        // 那些只存在於設計文件、用來界定範圍的字眼，不得出現在程式、UI、log 或雲端資源名稱裡；
+        // log 事件名同樣算數，CI 有一道 grep 在守（.github/workflows/ci.yml 的 naming-lint）。
+        if (!response.IsReplay && committed is { } r)
+            logger.LogWarning("AdminReset {ActorId} {OrdersDeleted} {HoldsDeleted} {SeatsReleased}",
+                              actorId, r.OrdersDeleted, r.HoldsDeleted, r.SeatsReleased);
 
         return response;
     }
