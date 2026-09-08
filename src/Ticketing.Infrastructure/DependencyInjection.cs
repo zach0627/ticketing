@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Ticketing.Application.Abstractions;
 using Ticketing.Application.Catalog;
 using Ticketing.Domain.Booking;
@@ -55,6 +56,21 @@ public static class DependencyInjection
 
         // ── 安全：Singleton，無狀態或只有設定 ──
         services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
+        services.AddSingleton<IJwtTokenIssuer, JwtTokenIssuer>();
+        services.AddSingleton<IGoogleTokenVerifier, GoogleTokenVerifier>();
+
+        // Jwt 與 Seed 相反：**一定要 ValidateOnStart**。少了簽章金鑰的 API
+        // 不該啟動成功，再在第一次有人登入時才爆掉（設計文件 05 第 6 節）。
+        services.AddOptions<JwtOptions>()
+                .Bind(configuration.GetSection(JwtOptions.SectionName))
+                .ValidateDataAnnotations()          // 必填與範圍
+                .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<JwtOptions>, JwtOptionsValidator>();   // 金鑰長度與佔位字串
+
+        services.AddOptions<GoogleAuthOptions>()
+                .Bind(configuration.GetSection(GoogleAuthOptions.SectionName))
+                .ValidateOnStart();
+        services.AddSingleton<IValidateOptions<GoogleAuthOptions>, GoogleAuthOptionsValidator>();
 
         // SeedRunner 是自己那條呼叫堆疊的頂端（CLI 進入點），需要時鐘來源。
         // AddApplication() 也會註冊 TimeProvider；用 TryAdd 讓兩個擴充方法各自完整、

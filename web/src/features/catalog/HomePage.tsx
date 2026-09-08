@@ -23,7 +23,7 @@ export function HomePage() {
   return (
     <>
       <header className="page-header">
-        <h1>線上購票系統</h1>
+        <h1>熱門活動</h1>
         <p className="page-header__note">
           本站為作品展示，付款為模擬流程，<strong>票券無實際入場效力</strong>。
         </p>

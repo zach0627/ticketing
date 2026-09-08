@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ApiError } from '../shared/api/http';
+import { AuthProvider } from '../features/auth/AuthProvider';
+import { googleClientId } from '../features/auth/googleConfig';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,6 +17,22 @@ const queryClient = new QueryClient({
   },
 });
 
+/**
+ * 沒設定 Client ID 就不掛 Google 的 Provider——它會去載入 Google 的 script，
+ * 沒有 ID 只會在 console 留下一堆錯誤。Email 登入不受影響。
+ */
+function GoogleIdentity({ children }: { children: ReactNode }) {
+  if (!googleClientId) return <>{children}</>;
+  return <GoogleOAuthProvider clientId={googleClientId}>{children}</GoogleOAuthProvider>;
+}
+
 export function Providers({ children }: { children: ReactNode }) {
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* AuthProvider 要在 QueryClientProvider 之內：登出時要清私人快取 */}
+      <GoogleIdentity>
+        <AuthProvider>{children}</AuthProvider>
+      </GoogleIdentity>
+    </QueryClientProvider>
+  );
 }

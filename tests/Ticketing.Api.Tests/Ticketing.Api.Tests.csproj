@@ -11,6 +11,8 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="Testcontainers.MsSql" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <!-- 自己簽「應該被拒絕」的 token：過期、換金鑰、換演算法、缺 sub -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
   </ItemGroup>
 
   <ItemGroup>

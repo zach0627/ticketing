@@ -11,10 +11,10 @@
 | 階段 | 內容 | 狀態 |
 |---|---|---|
 | 1 | 骨架：方案、七個專案、中央套件管理、CI | ✅ |
-| 2 | Domain：實體、規則、Repository 介面 | ⬜ |
-| 3 | Infrastructure：EF、migration、seed | ⬜ |
-| 4 | 公開瀏覽（第一條垂直切片） | ⬜ |
-| 5 | 註冊登入（密碼 ＋ Google） | ⬜ |
+| 2 | Domain：實體、規則、Repository 介面 | ✅ |
+| 3 | Infrastructure：EF、migration、seed | ✅ |
+| 4 | 公開瀏覽（第一條垂直切片） | ✅ |
+| 5 | 註冊登入（密碼 ＋ Google） | ✅ |
 | 6 | 保留與付款 | ⬜ |
 | 7 | 管理後台與背景通知 | ⬜ |
 | 8 | Azure 部署 | ⬜ |
@@ -41,7 +41,13 @@ Ticketing.Api             Controller、ProblemDetails、驗證授權、CORS、�
 dotnet build                                   # 整個方案
 dotnet test                                    # 三層測試
 dotnet run --project src/Ticketing.Api --urls http://localhost:5080
-cd web && npm run dev                          # http://localhost:5173
+cd web && cp .env.example .env && npm run dev   # http://localhost:5173
+```
+
+第一次跑之前要設一個 JWT 簽章金鑰，否則 API 會**刻意**啟動失敗（少了金鑰的服務不該起得來）：
+
+```bash
+cd src/Ticketing.Api && dotnet user-secrets set "Jwt:SigningKey" "$(openssl rand -base64 48)"
 ```
 
 資料庫（本機 Docker SQL Server，另建 `Ticketing` 資料庫）與 migration／seed 指令見 `AGENTS.md`。

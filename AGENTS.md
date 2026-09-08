@@ -62,6 +62,9 @@ dotnet run --project src/Ticketing.Api -- promote-admin <email>
 ## 安全
 
 - 機密一律 `dotnet user-secrets`（本機）或 App Service 設定（雲端）。**不寫進程式、文件、git、log 或對話**，一律 `YOUR_VALUE_HERE`。
+- `Jwt:SigningKey` 必填且 `ValidateOnStart`：沒設定 API 會**刻意**啟動失敗。本機用
+  `dotnet user-secrets set "Jwt:SigningKey" "$(openssl rand -base64 48)"`（在 `src/Ticketing.Api`）。
+- `Google:ClientId` 與前端的 `VITE_GOOGLE_CLIENT_ID` 是同一個**公開值**，放 `appsettings.json` 與 `.env.example`；沒有 client secret。
 - `appsettings.Development.json` 會進 git，只放非機密設定。
 - 錯誤走 `BookingRuleException` → `ApiExceptionHandler` → ProblemDetails，含 `code` 與 `traceId`。別人的資源回 404，不是 403。
 

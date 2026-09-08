@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Ticketing.Application.Auth;
 
 namespace Ticketing.Application;
 
@@ -19,7 +20,10 @@ public static class DependencyInjection
         // AddInfrastructure() 也會 TryAdd 一份，讓兩個模組各自完整、順序無關。
         services.TryAddSingleton(TimeProvider.System);
 
-        // Service（IAuthService、IBookingService、IAdminService）自階段 5 起陸續加入。
+        // Service 是 Scoped：它們相依的 Repository 與 IUnitOfWork 都共用同一個
+        // 請求範圍的 DbContext，交易邊界才涵蓋得到（設計文件 03 第 4.3 節）。
+        services.AddScoped<IAuthService, AuthService>();
+        // IBookingService（階段 6）、IAdminService（階段 7）之後加入。
 
         return services;
     }

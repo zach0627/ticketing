@@ -1,11 +1,16 @@
-// 階段 4：第一條垂直切片（瀏覽器 → Controller → Queries → SQL）。
-// 組裝順序見設計文件 03 第 6 節；JWT、限流、seed 以外的 middleware 於後續階段接上。
+// 組裝點。順序見設計文件 03 第 6 節。
+// 階段 4 立起 HTTP 骨幹，階段 5 補上認證、授權與限流。
 
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Options;
 using Serilog;
+using Ticketing.Api.Auth;
 using Ticketing.Api.Commands;
 using Ticketing.Api.ExceptionHandling;
+using Ticketing.Api.RateLimiting;
 using Ticketing.Application;
 using Ticketing.Domain.Common;
 using Ticketing.Infrastructure;
@@ -32,6 +37,10 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddSingleton<ApiProblemWriter>();          // 無 scoped 相依
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+
+// 密碼雜湊與 Google 驗簽都不便宜，不能讓人送 10 MB 的 body 逼我們去跑。
+// 欄位長度限制（05 第 4.1 節）與這個上限是一起生效的兩道門。
+builder.Services.Configure<KestrelServerOptions>(o => o.Limits.MaxRequestBodySize = 16 * 1024);
 
 builder.Services
     .AddControllers()
@@ -63,6 +72,17 @@ builder.Services.Configure<ApiBehaviorOptions>(o =>
 builder.Services.AddOpenApi();
 builder.Services.AddHealthChecks();     // 刻意不查資料庫：避免阻止 Azure SQL 閒置自動暫停（09）
 
+// ── 認證與授權（設計文件 05）──
+builder.Services.AddHttpContextAccessor();                 // CurrentUser 的建構相依
+builder.Services.AddScoped<CurrentUser>();                 // 一個請求一份
+
+// JwtBearerOptions 交給 ConfigureJwtBearerOptions 設定，才拿得到已驗證的 JwtOptions
+builder.Services.AddSingleton<IConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.AddAuthorization();                       // [Authorize(Roles = "Admin")] 就夠用
+
+builder.Services.AddTicketingRateLimiter(builder.Configuration);
+
 builder.Services.AddCors(o => o.AddPolicy("Frontend", p => p
     .WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
     .AllowAnyHeader()
@@ -81,8 +101,15 @@ if (args is ["seed"] or ["promote-admin", _])
 }
 
 // ── middleware 順序（設計文件 03 第 6 節）──
-app.UseExceptionHandler();              // ① 最外層：任何例外 → ProblemDetails
-app.UseSerilogRequestLogging();         // ② 一行一請求：方法、路徑、狀態碼、耗時
+
+// ⚠️ 請求記錄要在例外處理**外面**。
+// 反過來的話，業務例外會先穿過 Serilog 才被 UseExceptionHandler 轉成 409／401，
+// 於是 log 記成「responded 500 [ERR]」——但使用者實際收到的是 409。
+// 結果是滿畫面假的 500，真正的伺服器錯誤反而被淹沒（設計文件 10 第 3 節）。
+// 放在外面，Serilog 看到的是**已經轉換完成**的狀態碼；未處理例外仍會是 500 → Error，
+// 而且堆疊由 ApiExceptionHandler 自己記一次，資訊沒有變少。
+app.UseSerilogRequestLogging();         // ① 一行一請求：方法、路徑、最終狀態碼、耗時
+app.UseExceptionHandler();              // ② 任何例外 → ProblemDetails
 
 // 空 body 的狀態錯誤（404 路由不符、405 方法不支援）也補上一致的格式
 app.UseStatusCodePages(async context =>
@@ -103,6 +130,9 @@ if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();   // 本機走 
 
 app.UseRouting();
 app.UseCors("Frontend");                // ⑤ 在 Authentication 之前
+app.UseAuthentication();                // ⑥ 你是誰
+app.UseAuthorization();                 // ⑦ 你能做什麼
+app.UseRateLimiter();                   // ⑧ 知道你是誰之後才能按人限流（booking／admin 用 sub 分流）
 
 app.MapControllers();
 app.MapHealthChecks("/health");

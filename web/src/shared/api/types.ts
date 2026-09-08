@@ -91,3 +91,30 @@ export interface ApiProblem {
   code?: string;
   traceId?: string;
 }
+
+// ── 使用者與登入（階段 5）──
+
+export type UserRole = 'Customer' | 'Admin';
+
+export interface UserDto {
+  id: string;
+  email: string;
+  displayName: string;
+  role: UserRole;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  user: UserDto;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  displayName: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}

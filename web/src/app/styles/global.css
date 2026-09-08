@@ -119,3 +119,41 @@ h2 { font-size: 1.15rem; margin: 32px 0 12px; }
 .seat--available { background: var(--available); }
 .seat--held { background: var(--held); }
 .seat--sold { background: var(--sold); color: var(--muted); }
+
+/* ── 頁首（階段 5）── */
+.site-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; padding-bottom: 16px; margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.site-header__brand { font-weight: 600; letter-spacing: .02em; }
+.site-header__nav { display: flex; gap: 16px; align-items: center; font-size: .9rem; }
+.site-header__nav a { color: var(--muted); }
+.site-header__nav a:hover { color: var(--text); }
+.site-header__hint { color: var(--muted); font-size: .85rem; }
+.site-header__link-button {
+  background: none; border: none; padding: 0; cursor: pointer;
+  color: var(--muted); font: inherit; font-size: .9rem;
+}
+.site-header__link-button:hover { color: var(--text); }
+
+/* ── 登入／註冊 ── */
+.auth { max-width: 380px; margin: 24px auto 0; }
+.auth h1 { margin-bottom: 20px; }
+.auth__switch { color: var(--muted); font-size: .88rem; margin-top: 24px; text-align: center; }
+.auth__switch a { color: var(--accent); }
+
+.auth-form { display: flex; flex-direction: column; gap: 6px; }
+.auth-form label { color: var(--muted); font-size: .82rem; margin-top: 10px; }
+.auth-form input {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 9px 12px; font: inherit;
+}
+.auth-form input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.auth-form .cta { margin-top: 20px; text-align: center; border: none; font: inherit; font-weight: 600; cursor: pointer; }
+.auth-form .cta:disabled { background: var(--surface-2); color: var(--muted); cursor: default; }
+.auth-form__error { color: #ff8f8f; font-size: .85rem; margin: 12px 0 0; }
+.auth-form__google { margin-top: 20px; display: flex; justify-content: center; }
+
+.cta--secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); cursor: pointer; font: inherit; }

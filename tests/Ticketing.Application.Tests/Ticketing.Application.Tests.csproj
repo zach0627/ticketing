@@ -9,6 +9,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
+    <!-- 三個外部套件（雜湊、JWT、Google）在這一層全部換成替身：
+         測試不連 Google、不算 PBKDF2，只驗流程（設計文件 05 第 2 節） -->
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
   </ItemGroup>
 
   <ItemGroup>

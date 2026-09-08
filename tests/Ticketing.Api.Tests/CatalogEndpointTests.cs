@@ -20,7 +20,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Event_list_returns_all_fifteen_events_with_computed_fields()
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var page = await client.GetFromJsonAsync<JsonElement>("/api/v1/events?pageSize=30", Json);
@@ -41,7 +41,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Event_list_filters_by_category_and_pages()
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var concerts = await client.GetFromJsonAsync<JsonElement>("/api/v1/events?category=Concert&pageSize=30", Json);
@@ -60,7 +60,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Event_detail_carries_the_purchase_policy_from_the_domain()
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var concert = await client.GetFromJsonAsync<JsonElement>("/api/v1/events/C01", Json);
@@ -77,7 +77,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Seat_map_never_leaks_hold_or_buyer_information()
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var map = await client.GetFromJsonAsync<JsonElement>("/api/v1/performances/1/seats", Json);
@@ -126,7 +126,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
             await command.ExecuteNonQueryAsync();
         }
 
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var map = await client.GetFromJsonAsync<JsonElement>("/api/v1/performances/1/seats", Json);
@@ -148,7 +148,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Errors_always_carry_a_code_and_a_trace_id(string url, HttpStatusCode expected, string code)
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync(url);
@@ -165,7 +165,7 @@ public class CatalogEndpointTests(SqlServerFixture fixture)
     public async Task Health_check_answers_without_touching_the_database()
     {
         await using var db = await SeededDatabaseAsync();
-        using var factory = new CatalogApiFactory(db.ConnectionString);
+        using var factory = new TicketingApiFactory(db.ConnectionString);
         using var client = factory.CreateClient();
 
         var response = await client.GetAsync("/health");
