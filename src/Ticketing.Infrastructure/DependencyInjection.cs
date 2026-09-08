@@ -35,9 +35,21 @@ public static class DependencyInjection
 
         // ── 持久化：Scoped，一個請求一個 DbContext，
         //    所有 Repository／gate／UoW 共用同一個，交易才涵蓋得到（設計文件 06 第 3 節）──
+        //
+        //    韌性參數走設定而不是寫死：本機要「快點失敗」，雲端要「撐過 serverless 冷啟動」，
+        //    這兩件事沒有共同的正確數字（見 SqlResilienceOptions）。
+        //    這裡直接 Get<T>() 而不是走 IOptions——DbContext 的設定在註冊當下就要決定，
+        //    等到第一個請求才解析 IOptions 已經太晚了。
+        var resilience = configuration.GetSection("Database").Get<SqlResilienceOptions>()
+                         ?? new SqlResilienceOptions();
+
         services.AddDbContext<TicketingDbContext>(o =>
             o.UseSqlServer(configuration.GetConnectionString("Ticketing"),
-                sql => sql.CommandTimeout(10).EnableRetryOnFailure(2, TimeSpan.FromSeconds(2), null)));
+                sql => sql.CommandTimeout(resilience.CommandTimeoutSeconds)
+                          .EnableRetryOnFailure(
+                              resilience.MaxRetryCount,
+                              TimeSpan.FromSeconds(resilience.MaxRetryDelaySeconds),
+                              null)));
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IBookingWriteGate, SqlBookingWriteGate>();

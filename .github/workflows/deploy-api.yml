@@ -8,6 +8,7 @@
 # 要啟用的話：
 #   gh variable set DEPLOY_ENABLED --body true
 #   gh variable set AZURE_WEBAPP_NAME --body YOUR-WEBAPP-NAME
+#   gh variable set AZURE_RESOURCE_GROUP --body YOUR-RESOURCE-GROUP
 #   gh secret set AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_SUBSCRIPTION_ID
 name: Deploy API
 
@@ -63,12 +64,27 @@ jobs:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
           package: artifacts/api
 
+      - name: Resolve the real hostname
+        id: host
+        run: |
+          # ⚠️ 不要用 `<app-name>.azurewebsites.net` 推導網址。
+          # Azure 現在預設開啟 **Secure unique default hostname**，實際主機名稱是
+          #   <app-name>-<隨機後綴>.<region>-01.azurewebsites.net
+          # 這個隨機後綴是為了防止「子網域接管」——app 刪掉之後，
+          # 別人不能用同一個名字把你舊的網址接走。
+          # 所以唯一可靠的來源是問 Azure 本人。
+          host=$(az webapp show -g "${{ vars.AZURE_RESOURCE_GROUP }}" \
+                   -n "${{ vars.AZURE_WEBAPP_NAME }}" --query defaultHostName -o tsv)
+          test -n "$host"
+          echo "host=$host" >> "$GITHUB_OUTPUT"
+          echo "API base: https://$host"
+
       - name: Smoke test
         run: |
           # F1 沒有 slot，部署後會有短暫中斷 ＋ 冷啟動，所以要等
           for attempt in $(seq 1 20); do
             code=$(curl -s -o /dev/null -w '%{http_code}' \
-              "https://${{ vars.AZURE_WEBAPP_NAME }}.azurewebsites.net/health" || true)
+              "https://${{ steps.host.outputs.host }}/health" || true)
             echo "attempt $attempt: $code"
             [ "$code" = "200" ] && exit 0
             sleep 15
