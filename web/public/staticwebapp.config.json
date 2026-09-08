@@ -1,7 +1,40 @@
 {
+  "//": "SWA 預設對所有檔案送 Cache-Control: public, must-revalidate, max-age=30。對於檔名帶 hash 的 bundle 來說那是浪費，對於 31 MB 的活動圖來說那是每半分鐘重抓一次。路由由上而下比對，第一個命中就套用，所以具體的要放前面。",
+  "routes": [
+    {
+      "//": "活動圖：檔名是資料庫裡的 imagePath，不帶 hash，所以**不能** immutable——換圖時要換得掉。七天。",
+      "route": "/assets/events/*",
+      "headers": {
+        "Cache-Control": "public, max-age=604800"
+      }
+    },
+    {
+      "//": "Vite 產出的 bundle 檔名帶內容 hash，內容變了檔名就變，可以放心 immutable 一年。",
+      "route": "/assets/*",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "//": "入口 HTML 一定不能長快取——它是指向哪一份 bundle 的唯一來源，快取住就等於部署不生效。",
+      "route": "/index.html",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ],
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/assets/*", "/*.{css,js,png,webp,svg,ico,json,txt}"]
+    "exclude": [
+      "/assets/*",
+      "/*.{css,js,png,webp,svg,ico,json,txt}"
+    ]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
