@@ -38,22 +38,29 @@ public static class DependencyInjection
         //
         //    韌性參數走設定而不是寫死：本機要「快點失敗」，雲端要「撐過 serverless 冷啟動」，
         //    這兩件事沒有共同的正確數字（見 SqlResilienceOptions）。
-        //    這裡直接 Get<T>() 而不是走 IOptions——DbContext 的設定在註冊當下就要決定，
-        //    等到第一個請求才解析 IOptions 已經太晚了。
-        var resilience = configuration.GetSection("Database").Get<SqlResilienceOptions>()
-                         ?? new SqlResilienceOptions();
+        //
+        //    ⚠️ 綁定走 IOptions，**不是**在這裡直接 Get<T>()。
+        //    直接 Get<T>() 會在「註冊的當下」就求值，於是任何之後才加入的設定來源
+        //    都看不到——整合測試的 WebApplicationFactory 就是在之後才加設定的，
+        //    結果是測試以為自己在測 production 的數字，其實拿到的是預設值。
+        //    AddDbContext 的委派本來就是延遲執行的，沒有理由提早求值。
+        services.Configure<SqlResilienceOptions>(configuration.GetSection("Database"));
+        services.AddSingleton(sp => sp.GetRequiredService<IOptions<SqlResilienceOptions>>().Value);
 
         // 啟動時把生效的值印出來（見 SqlResilienceStartupLog 的註解）。
-        services.AddSingleton(resilience);
         services.AddHostedService<SqlResilienceStartupLog>();
 
-        services.AddDbContext<TicketingDbContext>(o =>
+        services.AddDbContext<TicketingDbContext>((sp, o) =>
+        {
+            var resilience = sp.GetRequiredService<IOptions<SqlResilienceOptions>>().Value;
+
             o.UseSqlServer(configuration.GetConnectionString("Ticketing"),
                 sql => sql.CommandTimeout(resilience.CommandTimeoutSeconds)
                           .EnableRetryOnFailure(
                               resilience.MaxRetryCount,
                               TimeSpan.FromSeconds(resilience.MaxRetryDelaySeconds),
-                              null)));
+                              SqlResilienceOptions.AdditionalTransientErrorNumbers));
+        });
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IBookingWriteGate, SqlBookingWriteGate>();

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Ticketing.Api.Auth;
 using Ticketing.Api.Tests.Infrastructure;
+using Ticketing.Infrastructure.Persistence;
 
 namespace Ticketing.Api.Tests;
 
@@ -19,6 +20,51 @@ public class HostStartupTests
         "Server=(local);Database=none;Trusted_Connection=True;TrustServerCertificate=True";
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+
+    [Fact]
+    public void SQL_resilience_falls_back_to_the_local_defaults_when_nothing_is_configured()
+    {
+        using var factory = new TicketingApiFactory(UnusedConnectionString);
+
+        var effective = factory.Services.GetRequiredService<SqlResilienceOptions>();
+
+        // 本機的數字：瞬時錯誤重試兩次就好，撐不過就該讓它失敗
+        Assert.Equal(10, effective.CommandTimeoutSeconds);
+        Assert.Equal(2, effective.MaxRetryCount);
+        Assert.Equal(2, effective.MaxRetryDelaySeconds);
+    }
+
+    [Fact]
+    public void SQL_resilience_reads_the_Database_section_when_it_is_present()
+    {
+        // 這個測試守的是一個**安靜的**失敗：設定綁定壞掉不會拋例外，
+        // 只會退回預設值，然後在雲端變成「閒置後第一個訪客拿到 500」。
+        // 這次雲端上就是先誤判成「重試不夠久」，其實是「連線逾時不算可重試」。
+        using var factory = new TicketingApiFactory(
+            UnusedConnectionString,
+            extraSettings: new Dictionary<string, string?>
+            {
+                ["Database:CommandTimeoutSeconds"] = "15",
+                ["Database:MaxRetryCount"] = "2",
+                ["Database:MaxRetryDelaySeconds"] = "5",
+            });
+
+        var effective = factory.Services.GetRequiredService<SqlResilienceOptions>();
+
+        Assert.Equal(15, effective.CommandTimeoutSeconds);
+        Assert.Equal(2, effective.MaxRetryCount);
+        Assert.Equal(5, effective.MaxRetryDelaySeconds);
+    }
+
+    [Fact]
+    public void Connection_timeouts_are_explicitly_opted_into_as_retryable()
+    {
+        // EF 預設**不**重試 -2，而且那個預設是對的：逾時的命令可能已經成功了。
+        // 這裡刻意加回來，靠的是寫入路徑的單一交易 ＋ 冪等指紋（階段六）。
+        // 這個斷言的用意是：哪天有人把它拿掉，要在這裡先紅燈，
+        // 而不是等到某次雲端冷啟動才發現。
+        Assert.Contains(-2, SqlResilienceOptions.AdditionalTransientErrorNumbers);
+    }
 
     [Fact]
     public void The_container_builds_with_scope_validation_on_and_CurrentUser_resolves()

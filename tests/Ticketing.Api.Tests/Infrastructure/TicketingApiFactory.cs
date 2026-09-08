@@ -82,8 +82,12 @@ public sealed class TicketingApiFactory(
 
             services.AddDbContext<TicketingDbContext>(o =>
             {
+                // 重試的錯誤清單跟正式註冊用同一份常數——這裡如果自己寫一份，
+                // 測試就會在一個「跟正式環境不一樣的韌性設定」上跑
                 o.UseSqlServer(connectionString,
-                    sql => sql.CommandTimeout(10).EnableRetryOnFailure(2, TimeSpan.FromSeconds(2), null));
+                    sql => sql.CommandTimeout(10)
+                              .EnableRetryOnFailure(2, TimeSpan.FromSeconds(2),
+                                                    SqlResilienceOptions.AdditionalTransientErrorNumbers));
 
                 // T21 用：在 commit 前後注入故障，模擬「交易成功但回覆遺失」與「commit 前掛掉」
                 if (interceptor is not null) o.AddInterceptors(interceptor);
