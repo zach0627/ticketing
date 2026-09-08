@@ -39,6 +39,7 @@ h2 { font-size: 1.15rem; margin: 32px 0 12px; }
 .state { padding: 24px; text-align: center; color: var(--muted); }
 .state--error { color: #ff8f8f; border: 1px solid #5a2a2a; border-radius: var(--radius); }
 .state__trace { font-family: ui-monospace, monospace; font-size: .75rem; opacity: .7; }
+.state__hint { color: var(--muted); font-size: .85rem; }
 
 /* ── 篩選 ── */
 .filters { display: flex; gap: 8px; margin-bottom: 16px; }

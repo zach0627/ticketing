@@ -1,0 +1,63 @@
+# 前端部署到 Azure Static Web Apps（Free）。
+#
+# 兩個刻意的設計：
+#   ① 只在 CI **成功之後**才跑。測試沒過就不該有東西上線。
+#   ② 用 repository variable `DEPLOY_ENABLED` 當總開關——
+#      還沒建立 Azure 資源時，這個 workflow 會顯示「跳過」而不是「失敗」，
+#      不會讓 repo 看起來一直是紅的。
+#
+# 要啟用的話（設計文件 16 第 7 節）：
+#   gh variable set DEPLOY_ENABLED --body true
+#   gh variable set VITE_API_BASE_URL --body https://YOUR-API.azurewebsites.net/api/v1
+#   gh secret   set AZURE_STATIC_WEB_APPS_API_TOKEN   # 從 SWA 的 Manage deployment token 取得
+name: Deploy web
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # workflow_run 不管 CI 成功或失敗都會觸發，所以要自己檢查結論
+    if: >
+      vars.DEPLOY_ENABLED == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # workflow_run 預設抓預設分支的最新版；明確指定觸發 CI 的那個 commit
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build
+        working-directory: web
+        env:
+          # VITE_* 是**建置時**替換進去的，不是執行時讀的。改了就要重新 build。
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy to Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: web/dist
+          skip_app_build: true          # 上一步已經 build 過了
+          api_location: ''              # 不用 SWA 的內建 API（那是 Standard 方案的功能）

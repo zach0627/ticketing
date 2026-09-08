@@ -4,7 +4,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <!-- dotnet ef 需要啟動專案參照它，但它是**設計時**工具：
+         沒有 PrivateAssets="all" 的話，Roslyn、MSBuild、Humanizer 全部會被
+         publish 到 App Service F1 去（多 20 幾個 DLL）。 -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
     <PackageReference Include="Serilog.AspNetCore" />
   </ItemGroup>
 

@@ -126,7 +126,19 @@ app.UseStatusCodePages(async context =>
     await writer.WriteAsync(context.HttpContext, code);
 });
 
-if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();   // 本機走 HTTP（08）
+// HTTP → HTTPS 轉址「由誰負責」是部署決定，不是程式碼決定：
+//   本機：不需要（08）
+//   App Service：平台的「HTTPS Only」已經在前端做完了，應用程式再做一次會無窮迴圈——
+//                平台以 http 把請求轉進來，我們導去 https，平台再轉進來……（16 第 8 節）
+// 所以做成設定，預設開啟；appsettings.Production.json 關掉它。
+if (builder.Configuration.GetValue("Hosting:HttpsRedirection", !app.Environment.IsDevelopment()))
+    app.UseHttpsRedirection();
+
+// ⚠️ 刻意**不啟用** ForwardedHeaders。
+// 在 App Service 上沒辦法列舉可信代理的位址，而清空 KnownProxies 等於相信任何人送來的
+// X-Forwarded-For——那會讓每個請求都能自稱來自不同 IP，限流形同虛設（設計文件 05 第 7 節）。
+// 代價講明白：雲端上 auth 端點的限流會退化成**全站共用一個額度**，
+// 而不是每個真實 IP 一份。這是保守但誠實的選擇（16 第 8 節）。
 
 app.UseRouting();
 app.UseCors("Frontend");                // ⑤ 在 Authentication 之前
