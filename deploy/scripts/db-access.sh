@@ -20,7 +20,7 @@
 #   ./deploy/scripts/db-access.sh close    # 關掉（做完事一定要跑這個）
 #   ./deploy/scripts/db-access.sh status   # 目前有哪些非 App Service 的規則
 #
-# 需要先 `az login`。資源名稱可以用環境變數覆蓋。
+# 需要先 `az login`。資源名稱來自 azure.env 或環境變數（見下方，**不在版控裡**）。
 #
 # 規則生效需要時間
 # ----------------
@@ -31,13 +31,39 @@
 #
 set -euo pipefail
 
-RG="${TICKETING_RG:-rg-ticketing}"
-SERVER="${TICKETING_SQL_SERVER:-sql-ticketing-zach0627}"
-RULE="${TICKETING_DEV_RULE:-dev-roaming}"
+# 資源名稱**不寫在版控裡**。
+#
+# 這個 repo 是公開的。前端網址與 API 網址本來就是公開的（訪客的瀏覽器就會看到），
+# 但**資料庫端點不是**——沒有任何使用者會看到它。
+# 把它寫死在腳本裡當預設值，等於免費送給任何人一個明確的攻擊目標。
+#
+# 這不會讓資料庫「被打開」（防火牆預設關著，而且伺服器是 Entra-only 驗證，
+# 連 SQL 帳密登入這條路都不存在），但不公布端點是基本衛生。
+#
+# 值從兩個地方來，環境變數優先：
+#   1. 環境變數 TICKETING_RG / TICKETING_SQL_SERVER
+#   2. 同目錄的 azure.env（被 .gitignore 排除；範本見 azure.env.example）
+_env_rg="${TICKETING_RG:-}"
+_env_server="${TICKETING_SQL_SERVER:-}"
+_env_rule="${TICKETING_DEV_RULE:-}"
+
+_config="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/azure.env"
+# shellcheck source=/dev/null
+[ -f "$_config" ] && . "$_config"
+
+RG="${_env_rg:-${TICKETING_RG:-}}"
+SERVER="${_env_server:-${TICKETING_SQL_SERVER:-}}"
+RULE="${_env_rule:-${TICKETING_DEV_RULE:-dev-roaming}}"
 
 die() { printf '\033[31m%s\033[0m\n' "$*" >&2; exit 1; }
 ok()  { printf '\033[32m%s\033[0m\n' "$*"; }
 warn(){ printf '\033[33m%s\033[0m\n' "$*"; }
+
+if [ -z "$RG" ] || [ -z "$SERVER" ]; then
+  die "缺少資源名稱。請擇一：
+  ① cp deploy/scripts/azure.env.example deploy/scripts/azure.env 並填入實際值（該檔已被 .gitignore 排除）
+  ② 或設環境變數 TICKETING_RG 與 TICKETING_SQL_SERVER"
+fi
 
 # 從多個來源取公網 IP 並要求一致。
 # 只問一個服務的話，它掛掉或回傳快取值時你不會知道——而寫錯 IP 的症狀

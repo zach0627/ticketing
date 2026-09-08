@@ -24,6 +24,13 @@
 
 -- App Service 的資源名稱。system-assigned managed identity 的顯示名稱與它同名。
 -- 換環境就改這一行。
+--
+-- 這個名稱**留在版控裡是刻意的**，跟 db-access.sh 把 SQL 伺服器名稱移出去不一樣：
+-- App Service 的名稱本來就公開——API 的網址由它組成，而那個網址烘在前端 bundle 裡，
+-- 每個訪客的瀏覽器都看得到。資料庫端點則相反，沒有任何使用者會看到它。
+--
+-- 區分「本來就公開」與「不該公開」，而不是無差別地把所有名稱都藏起來：
+-- 後者是儀式，不是安全，而且會讓這份腳本沒辦法直接執行。
 DECLARE @AppIdentity sysname = N'api-ticketing-zach0627';
 DECLARE @sql nvarchar(max);
 
