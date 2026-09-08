@@ -13,6 +13,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <!-- 自己簽「應該被拒絕」的 token：過期、換金鑰、換演算法、缺 sub -->
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <!-- T08／T14／T22：把業務時鐘撥到「剛好到期」那一刻 -->
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
   </ItemGroup>
 
   <ItemGroup>

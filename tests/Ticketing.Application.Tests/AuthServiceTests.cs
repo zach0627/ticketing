@@ -221,6 +221,40 @@ public class AuthServiceTests
     }
 
     [Fact]
+    public async Task A_race_that_shows_up_as_a_taken_email_is_re_checked_against_the_subject()
+    {
+        // 這個案例是整合測試在滿載時抓到的，之後才補成單元測試。
+        // 時序：查 subject 的那一刻對手還沒 commit（null），
+        //       查 Email 時它已經 commit（true）——直接回 409 就會把同一個人誤判成別人。
+        var winner = AppUser.CreateWithGoogle(Guid.NewGuid(), "g@example.com", "G", "sub-1", Now);
+        VerifiesAs(new GoogleIdentity("sub-1", "g@example.com", "G"));
+
+        _users.GetByGoogleSubjectAsync("sub-1", Arg.Any<CancellationToken>())
+              .Returns(_ => null, _ => winner);
+        _users.EmailExistsAsync("g@example.com", Arg.Any<CancellationToken>()).Returns(true);
+
+        var response = await Service().GoogleAsync(new GoogleLoginRequest { IdToken = "t" },
+                                                   CancellationToken.None);
+
+        Assert.Equal(winner.Id, response.User.Id);
+        _users.DidNotReceive().Add(Arg.Any<AppUser>());
+    }
+
+    [Fact]
+    public async Task An_email_genuinely_owned_by_a_password_account_still_conflicts()
+    {
+        // 對照組：Email 被占用，而且**再查一次 subject 還是沒有** → 這才是真的衝突
+        VerifiesAs(new GoogleIdentity("sub-9", "owner@example.com", "冒名者"));
+        _users.GetByGoogleSubjectAsync("sub-9", Arg.Any<CancellationToken>()).Returns((AppUser?)null);
+        _users.EmailExistsAsync("owner@example.com", Arg.Any<CancellationToken>()).Returns(true);
+
+        var error = await Assert.ThrowsAsync<BookingRuleException>(() =>
+            Service().GoogleAsync(new GoogleLoginRequest { IdToken = "t" }, CancellationToken.None));
+
+        Assert.Equal(ErrorCode.EmailAlreadyRegistered, error.Code);
+    }
+
+    [Fact]
     public async Task An_unexplainable_conflict_is_reported_instead_of_faked_into_a_success()
     {
         VerifiesAs(new GoogleIdentity("sub-1", "g@example.com", "G"));

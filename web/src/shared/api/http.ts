@@ -11,13 +11,16 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly traceId?: string;
+  /** `ActiveHoldExists` 時後端會附上既有的保留 id。 */
+  readonly holdId?: string;
 
-  constructor(status: number, code: string, message: string, traceId?: string) {
+  constructor(status: number, code: string, message: string, traceId?: string, holdId?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.traceId = traceId;
+    this.holdId = holdId;
   }
 }
 
@@ -73,10 +76,12 @@ export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {
 interface RequestOptions {
   body?: unknown;
   signal?: AbortSignal;
+  /** 額外標頭，目前只用在 `Idempotency-Key`。 */
+  headers?: Record<string, string>;
 }
 
 async function request<T>(method: 'GET' | 'POST', path: string, options: RequestOptions = {}): Promise<T> {
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
 
   const token = tokenStore.read();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -109,11 +114,35 @@ async function request<T>(method: 'GET' | 'POST', path: string, options: Request
     problem.code ?? 'ServiceUnavailable',
     problem.detail ?? problem.title ?? `請求失敗（HTTP ${response.status}）`,
     problem.traceId,
+    problem.holdId,
   );
 }
 
 export const apiGet = <T>(path: string, signal?: AbortSignal): Promise<T> =>
   request<T>('GET', path, { signal });
 
-export const apiPost = <T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> =>
-  request<T>('POST', path, { body, signal });
+export const apiPost = <T>(path: string, body: unknown, options: Omit<RequestOptions, 'body'> = {}): Promise<T> =>
+  request<T>('POST', path, { ...options, body });
+
+/**
+ * 有限重試。
+ *
+ * **只重試「還不知道結果」的失敗**：網路斷線、429、5xx。
+ * 400／409 是伺服器明確給的答案，重試只會得到一樣的答案（設計文件 13 第 4 節）。
+ *
+ * 呼叫端一定要沿用**同一個 Idempotency-Key**，否則重試就變成第二次購買。
+ */
+export async function withRetry<T>(send: () => Promise<T>, attempts = 3): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await send();
+    } catch (error) {
+      const retriable =
+        !(error instanceof ApiError) || error.status === 429 || error.status >= 500;
+
+      if (!retriable || attempt >= attempts) throw error;
+
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+    }
+  }
+}

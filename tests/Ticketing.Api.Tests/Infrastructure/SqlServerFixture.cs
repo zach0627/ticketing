@@ -33,8 +33,15 @@ public sealed class SqlServerFixture : IAsyncLifetime
 
     public Task DisposeAsync() => _container.DisposeAsync().AsTask();
 
-    /// <summary>建立一個唯一命名的空資料庫並套用真 migration。回傳它的連線字串。</summary>
-    public async Task<TestDatabase> CreateDatabaseAsync(CancellationToken ct = default)
+    /// <summary>
+    /// 建立一個唯一命名的空資料庫並套用真 migration。回傳它的連線字串。
+    ///
+    /// <paramref name="readCommittedSnapshot"/> 對應 T19：本機 SQL Server 預設 **OFF**，
+    /// Azure SQL Database 預設 **ON**。兩者的「一般 SELECT 會不會被鎖住」完全不同，
+    /// 所以併發協定要在兩種設定下各驗一次（設計文件 06 第 3.1 節）。
+    /// </summary>
+    public async Task<TestDatabase> CreateDatabaseAsync(bool readCommittedSnapshot = false,
+                                                        CancellationToken ct = default)
     {
         var name = "t_" + Guid.NewGuid().ToString("N");
 
@@ -42,7 +49,9 @@ public sealed class SqlServerFixture : IAsyncLifetime
         {
             await admin.OpenAsync(ct);
             await using var command = admin.CreateCommand();
-            command.CommandText = $"CREATE DATABASE [{name}];";
+            command.CommandText = readCommittedSnapshot
+                ? $"CREATE DATABASE [{name}]; ALTER DATABASE [{name}] SET READ_COMMITTED_SNAPSHOT ON;"
+                : $"CREATE DATABASE [{name}];";
             await command.ExecuteNonQueryAsync(ct);
         }
 

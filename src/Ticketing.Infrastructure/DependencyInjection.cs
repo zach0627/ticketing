@@ -10,7 +10,9 @@ using Ticketing.Domain.Catalog;
 using Ticketing.Domain.Common;
 using Ticketing.Domain.Orders;
 using Ticketing.Domain.Users;
+using Ticketing.Application.Orders;
 using Ticketing.Infrastructure.Persistence;
+using Ticketing.Infrastructure.Persistence.Dao;
 using Ticketing.Infrastructure.Persistence.Queries;
 using Ticketing.Infrastructure.Persistence.Repositories;
 using Ticketing.Infrastructure.Persistence.Seeding;
@@ -43,8 +45,12 @@ public static class DependencyInjection
         services.AddScoped<ISeatHoldRepository, SeatHoldRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
 
+        // ── DAO：表層存取，沒有聚合也沒有行為（ADR-2）──
+        services.AddScoped<IIdempotencyDao, IdempotencyDao>();
+
         // ── 唯讀查詢：投影成 DTO，不經過 Domain（ADR-5）──
         services.AddScoped<ICatalogQueries, CatalogQueries>();
+        services.AddScoped<IOrderQueries, OrderQueries>();
 
         // ── seed：CLI 與整合測試共用同一段程式 ──
         services.AddScoped<CatalogSeeder>();

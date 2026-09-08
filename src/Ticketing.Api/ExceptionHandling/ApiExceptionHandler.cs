@@ -16,7 +16,11 @@ public sealed class ApiExceptionHandler(ApiProblemWriter writer, ILogger<ApiExce
         {
             // 業務規則不成立是預期內的事，用 Information 記錄就好，不是系統錯誤
             logger.LogInformation("BusinessRuleRejected {Code} {Path}", rule.Code, context.Request.Path);
-            await writer.WriteAsync(context, rule.Code, rule.Message);
+
+            // Extensions 是 Domain／Application 明確放進來的白名單欄位（例如 holdId），
+            // 不是把整個例外攤開——writer 也只複製它拿到的這些鍵
+            await writer.WriteAsync(context, rule.Code, rule.Message,
+                                    rule.Extensions?.ToDictionary(e => e.Key, e => e.Value));
             return true;
         }
 

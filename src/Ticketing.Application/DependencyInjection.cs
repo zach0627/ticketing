@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ticketing.Application.Auth;
+using Ticketing.Application.Booking;
 
 namespace Ticketing.Application;
 
@@ -23,7 +24,12 @@ public static class DependencyInjection
         // Service 是 Scoped：它們相依的 Repository 與 IUnitOfWork 都共用同一個
         // 請求範圍的 DbContext，交易邊界才涵蓋得到（設計文件 03 第 4.3 節）。
         services.AddScoped<IAuthService, AuthService>();
-        // IBookingService（階段 6）、IAdminService（階段 7）之後加入。
+        services.AddScoped<IBookingService, BookingService>();
+        // IAdminService（階段 7）之後加入。
+
+        // IdempotencyGuard 是具體類別、沒有介面：它沒有第二種實作，
+        // 要被替換的是它底下的 IIdempotencyDao（設計文件 12 第 3 節）。
+        services.AddScoped<IdempotencyGuard>();
 
         return services;
     }

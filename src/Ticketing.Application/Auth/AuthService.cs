@@ -80,8 +80,24 @@ public sealed class AuthService(
 
         var email = Normalize(identity.Email);
         if (await users.EmailExistsAsync(email, ct))
+        {
+            // ⚠️ 這裡有一個很窄但真實的時序空窗，是整合測試在滿載時抓到的：
+            // 剛剛查 subject 的那一刻另一個併發的初次登入還沒 commit（所以查不到），
+            // 等我們查 Email 時它已經 commit 了（所以查得到）。
+            // 直接回 409 的話，同一個人的兩次登入其中一次會被誤判成「Email 被別人占用」。
+            //
+            // 兩次查的是同一列，所以 Email 說它存在時，再查一次 subject 一定看得到——
+            // 這一行把空窗關掉。
+            var raced = await users.GetByGoogleSubjectAsync(identity.Subject, ct);
+            if (raced is not null)
+            {
+                logger.LogInformation("GoogleFirstLoginRaceLost {UserId}", raced.Id);
+                return Respond(raced);
+            }
+
             throw new BookingRuleException(ErrorCode.EmailAlreadyRegistered,
                                            "此 Email 已有帳號，請使用原本的登入方式");
+        }
 
         user = AppUser.CreateWithGoogle(Guid.NewGuid(), email, identity.DisplayName, identity.Subject,
                                         clock.GetUtcNow());

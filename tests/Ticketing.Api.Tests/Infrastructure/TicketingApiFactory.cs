@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,7 +43,8 @@ public static class TestSecurity
 public sealed class TicketingApiFactory(
     string connectionString,
     Action<IServiceCollection>? overrideServices = null,
-    IDictionary<string, string?>? extraSettings = null) : WebApplicationFactory<Program>
+    IDictionary<string, string?>? extraSettings = null,
+    IInterceptor? interceptor = null) : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -78,8 +80,14 @@ public sealed class TicketingApiFactory(
             services.RemoveAll<TicketingDbContext>();
             services.RemoveAll<IDbContextOptionsConfiguration<TicketingDbContext>>();
 
-            services.AddDbContext<TicketingDbContext>(o => o.UseSqlServer(connectionString,
-                sql => sql.CommandTimeout(10).EnableRetryOnFailure(2, TimeSpan.FromSeconds(2), null)));
+            services.AddDbContext<TicketingDbContext>(o =>
+            {
+                o.UseSqlServer(connectionString,
+                    sql => sql.CommandTimeout(10).EnableRetryOnFailure(2, TimeSpan.FromSeconds(2), null));
+
+                // T21 用：在 commit 前後注入故障，模擬「交易成功但回覆遺失」與「commit 前掛掉」
+                if (interceptor is not null) o.AddInterceptors(interceptor);
+            });
 
             // 讓 MVC 找得到測試專案裡的探針 Controller（見 AuthProbeController 的說明）
             services.AddControllers()

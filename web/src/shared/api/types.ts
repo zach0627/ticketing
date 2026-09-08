@@ -83,13 +83,17 @@ export interface SeatMapDto {
   seats: SeatDto[];
 }
 
-/** 後端的 ProblemDetails（RFC 7807）＋ 我們加的兩個欄位。 */
+/**
+ * 後端的 ProblemDetails（RFC 7807）＋ 我們加的欄位。
+ * `holdId` 只在 `ActiveHoldExists` 時出現：告訴前端該把人導去哪一筆保留。
+ */
 export interface ApiProblem {
   title?: string;
   status?: number;
   detail?: string;
   code?: string;
   traceId?: string;
+  holdId?: string;
 }
 
 // ── 使用者與登入（階段 5）──
@@ -117,4 +121,67 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+// ── 保留與訂單（階段 6）──
+
+export type HoldStatus = 'Active' | 'Completed' | 'Cancelled' | 'Expired';
+export type SelectionMode = 'Manual' | 'Contiguous';
+
+export interface HoldItemDto {
+  seatId: number;
+  sectionCode: string;
+  rowNumber: number;
+  seatNumber: number;
+  unitPrice: number;
+}
+
+export interface HoldDto {
+  id: string;
+  performanceId: number;
+  status: HoldStatus;
+  orderId: string | null;
+  /** 伺服器的「現在」。倒數要用它當基準，不能用瀏覽器時鐘。 */
+  serverNowUtc: string;
+  expiresAtUtc: string;
+  currency: string;
+  totalAmount: number;
+  items: HoldItemDto[];
+}
+
+export interface CreateHoldRequest {
+  sectionId: number;
+  quantity: number;
+  selectionMode: SelectionMode;
+  seatIds: number[];
+}
+
+export interface OrderItemDto {
+  sectionCode: string;
+  rowNumber: number;
+  seatNumber: number;
+  unitPrice: number;
+  ticketCode: string;
+}
+
+export interface OrderDto {
+  id: string;
+  holdId: string;
+  eventTitle: string;
+  startsAtUtc: string;
+  currency: string;
+  totalAmount: number;
+  createdAtUtc: string;
+  items: OrderItemDto[];
+}
+
+export interface OrderSummaryDto {
+  id: string;
+  holdId: string;
+  eventTitle: string;
+  startsAtUtc: string;
+  quantity: number;
+  totalAmount: number;
+  currency: string;
+  createdAtUtc: string;
 }

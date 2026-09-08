@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Ticketing.Api.ExceptionHandling;
+using Ticketing.Application.Abstractions;
 using Ticketing.Domain.Common;
 
 namespace Ticketing.Api.RateLimiting;
@@ -13,6 +15,9 @@ public static class RateLimitPolicies
 {
     /// <summary><c>/api/v1/auth/*</c>：每個來源 IP 每分鐘 N 次（設計文件 05 第 7 節）。</summary>
     public const string Auth = "auth";
+
+    /// <summary>保留、付款、取消：每個登入者每分鐘 N 次。</summary>
+    public const string BookingWrite = "booking-write";
 }
 
 public sealed class RateLimitOptions
@@ -23,12 +28,20 @@ public sealed class RateLimitOptions
     public bool Enabled { get; set; } = true;
 
     public AuthRateLimitOptions Auth { get; set; } = new();
+
+    public BookingRateLimitOptions Booking { get; set; } = new();
 }
 
 public sealed class AuthRateLimitOptions
 {
     [Range(1, 10_000)]
     public int PermitLimit { get; set; } = 10;
+}
+
+public sealed class BookingRateLimitOptions
+{
+    [Range(1, 10_000)]
+    public int PermitLimit { get; set; } = 30;
 }
 
 public static class RateLimiterSetup
@@ -74,6 +87,23 @@ public static class RateLimiterSetup
                     : RateLimitPartition.GetNoLimiter<string>("disabled");
             });
 
+            // 購票寫入按**登入者**分流，不是按 IP：同一個辦公室的人共用出口 IP，
+            // 按 IP 分會讓他們互相排擠。走到這裡的請求都通過了 [Authorize]。
+            options.AddPolicy(RateLimitPolicies.BookingWrite, context =>
+            {
+                var limits = context.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+
+                return limits.Enabled
+                    ? RateLimitPartition.GetFixedWindowLimiter(PartitionByUser(context), _ =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = limits.Booking.PermitLimit,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        })
+                    : RateLimitPartition.GetNoLimiter<string>("disabled");
+            });
+
             options.OnRejected = async (context, _) =>
             {
                 // 順序有意義：Retry-After 要在寫 body 之前設，body 一開始寫就不能再加 header。
@@ -97,6 +127,10 @@ public static class RateLimiterSetup
     /// </summary>
     private static string PartitionByClientIp(HttpContext context)
         => context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+    /// <summary>登入者的 <c>sub</c>；理論上不會是匿名（端點有 <c>[Authorize]</c>），但仍給一個保底分區。</summary>
+    private static string PartitionByUser(HttpContext context)
+        => context.User.FindFirstValue(JwtClaims.Subject) ?? PartitionByClientIp(context);
 
     /// <summary>固定視窗會給出下一次可用的時間；拿不到就保守回 60 秒，而且一定是正整數。</summary>
     private static int RetryAfterSeconds(RateLimitLease lease)

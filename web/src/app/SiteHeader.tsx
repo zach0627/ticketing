@@ -20,6 +20,7 @@ export function SiteHeader() {
           <span className="site-header__hint">確認登入狀態…</span>
         ) : user ? (
           <>
+            <Link to="/orders">我的訂單</Link>
             <Link to="/account">{user.displayName}</Link>
             <button
               className="site-header__link-button"

@@ -9,4 +9,13 @@ namespace Ticketing.Domain.Common;
 public sealed class BookingRuleException(string code, string message) : Exception(message)
 {
     public string Code { get; } = code;
+
+    /// <summary>
+    /// 要一起回給前端的額外欄位，例如 <c>ActiveHoldExists</c> 要附上既有的 <c>holdId</c>，
+    /// 前端才知道該把人導去哪一筆保留（設計文件 13 第 3 節）。
+    ///
+    /// **這是白名單**：只放前端需要的業務識別碼，
+    /// 絕不放 SQL、堆疊或任意 <c>Exception.Data</c>。
+    /// </summary>
+    public IReadOnlyDictionary<string, object?>? Extensions { get; init; }
 }
