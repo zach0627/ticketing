@@ -43,6 +43,10 @@ public static class DependencyInjection
         var resilience = configuration.GetSection("Database").Get<SqlResilienceOptions>()
                          ?? new SqlResilienceOptions();
 
+        // 啟動時把生效的值印出來（見 SqlResilienceStartupLog 的註解）。
+        services.AddSingleton(resilience);
+        services.AddHostedService<SqlResilienceStartupLog>();
+
         services.AddDbContext<TicketingDbContext>(o =>
             o.UseSqlServer(configuration.GetConnectionString("Ticketing"),
                 sql => sql.CommandTimeout(resilience.CommandTimeoutSeconds)
