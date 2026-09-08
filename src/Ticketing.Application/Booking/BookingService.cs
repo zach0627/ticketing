@@ -31,6 +31,7 @@ public sealed class BookingService(
     ISeatHoldRepository holds,
     IOrderRepository orders,
     IdempotencyGuard idempotency,
+    IOrderNotificationQueue notifications,
     TimeProvider clock,
     ILogger<BookingService> logger) : IBookingService
 {
@@ -162,11 +163,26 @@ public sealed class BookingService(
             return new IdempotencyResponse(StatusCreated, json, IsReplay: false) { CreatedOrderId = order.Id };
         }, ct);
 
-        // 成功 log 一律放在 commit 之後。
-        // 背景通知（設計文件 06 第 9 節）也會掛在這個位置，階段 7 加入——
-        // 它刻意在交易外面：通知掉了不影響任何票務狀態。
+        // 成功 log 與通知都在 commit **之後**。
+        // 通知刻意在交易外面：排不進去只是掉一則模擬通知，
+        // 沒有任何票務狀態依賴它（設計文件 06 第 9 節）。
+        // 重播不再排一次——不然使用者每重新整理一次就多收到一則通知。
         if (response.CreatedOrderId is { } orderId)
+        {
             logger.LogInformation("OrderCreated {OrderId} {BuyerId}", orderId, buyerId);
+
+            // 訂單已經 commit 了。**通知這件事不可以把它變成失敗**——
+            // 排不進去、甚至佇列本身出問題，都只是少一則模擬通知
+            try
+            {
+                if (!notifications.TryEnqueue(orderId))
+                    logger.LogWarning("NotificationQueueFull {OrderId}", orderId);
+            }
+            catch (Exception exception)
+            {
+                logger.LogError(exception, "NotificationEnqueueFailed {OrderId}", orderId);
+            }
+        }
 
         return response;
     }

@@ -18,6 +18,9 @@ public static class RateLimitPolicies
 
     /// <summary>保留、付款、取消：每個登入者每分鐘 N 次。</summary>
     public const string BookingWrite = "booking-write";
+
+    /// <summary>暫停售票與重置：每個管理者每分鐘 N 次。額度刻意很小。</summary>
+    public const string AdminWrite = "admin-write";
 }
 
 public sealed class RateLimitOptions
@@ -30,6 +33,8 @@ public sealed class RateLimitOptions
     public AuthRateLimitOptions Auth { get; set; } = new();
 
     public BookingRateLimitOptions Booking { get; set; } = new();
+
+    public AdminRateLimitOptions Admin { get; set; } = new();
 }
 
 public sealed class AuthRateLimitOptions
@@ -42,6 +47,13 @@ public sealed class BookingRateLimitOptions
 {
     [Range(1, 10_000)]
     public int PermitLimit { get; set; } = 30;
+}
+
+public sealed class AdminRateLimitOptions
+{
+    /// <summary>重置會刪掉所有購買資料，不該有人每分鐘按幾十次。</summary>
+    [Range(1, 10_000)]
+    public int PermitLimit { get; set; } = 5;
 }
 
 public static class RateLimiterSetup
@@ -98,6 +110,22 @@ public static class RateLimiterSetup
                         new FixedWindowRateLimiterOptions
                         {
                             PermitLimit = limits.Booking.PermitLimit,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        })
+                    : RateLimitPartition.GetNoLimiter<string>("disabled");
+            });
+
+            // 管理寫入額度刻意很小：重置是破壞性操作
+            options.AddPolicy(RateLimitPolicies.AdminWrite, context =>
+            {
+                var limits = context.RequestServices.GetRequiredService<IOptions<RateLimitOptions>>().Value;
+
+                return limits.Enabled
+                    ? RateLimitPartition.GetFixedWindowLimiter(PartitionByUser(context), _ =>
+                        new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = limits.Admin.PermitLimit,
                             Window = TimeSpan.FromMinutes(1),
                             QueueLimit = 0
                         })

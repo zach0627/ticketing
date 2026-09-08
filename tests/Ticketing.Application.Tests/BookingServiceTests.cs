@@ -342,6 +342,45 @@ public class BookingServiceTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => CheckoutAsync(CheckoutOutcome.Succeeded));
     }
 
+    // ── 通知（階段 7）─────────────────────────────────────────────────
+
+    [Fact]
+    public async Task A_new_order_is_queued_for_notification_but_a_replay_is_not()
+    {
+        var hold = BookingTestContext.ActiveHold(BookingTestContext.Now.AddMinutes(-1),
+                                                 BookingTestContext.SeatOf(1101, 1, 1));
+        ArrangeHold(hold);
+        _.Seats.MarkSoldAsync(hold.Id, Arg.Any<CancellationToken>()).Returns(1);
+
+        await CheckoutAsync(CheckoutOutcome.Succeeded);
+        _.Notifications.Received(1).TryEnqueue(Arg.Any<Guid>());
+
+        // 第二次是重播（保留已 Completed）：不能再排一次，
+        // 不然使用者每重新整理一次就多收到一則通知
+        _.Orders.GetByHoldAsync(hold.Id, Arg.Any<CancellationToken>()).Returns(
+            Order.FromHold(Guid.NewGuid(), hold,
+                BookingTestContext.PerformanceOf(BookingTestContext.ConcertEvent()), BookingTestContext.Now));
+
+        await CheckoutAsync(CheckoutOutcome.Succeeded);
+        _.Notifications.Received(1).TryEnqueue(Arg.Any<Guid>());
+    }
+
+    [Fact]
+    public async Task A_broken_notification_queue_never_turns_a_paid_order_into_a_failure()
+    {
+        var hold = BookingTestContext.ActiveHold(BookingTestContext.Now.AddMinutes(-1),
+                                                 BookingTestContext.SeatOf(1101, 1, 1));
+        ArrangeHold(hold);
+        _.Seats.MarkSoldAsync(hold.Id, Arg.Any<CancellationToken>()).Returns(1);
+        _.Notifications.When(q => q.TryEnqueue(Arg.Any<Guid>()))
+                       .Throw(new InvalidOperationException("佇列壞了"));
+
+        // 訂單已經 commit。通知是 commit 之後的事，不能反過來把它變成 500
+        var response = await CheckoutAsync(CheckoutOutcome.Succeeded);
+
+        Assert.Equal(201, response.HttpStatus);
+    }
+
     // ── 取消 ─────────────────────────────────────────────────────────
 
     [Fact]

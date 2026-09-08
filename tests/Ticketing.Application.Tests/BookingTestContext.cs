@@ -32,6 +32,7 @@ internal sealed class BookingTestContext
     public ISeatHoldRepository Holds { get; } = Substitute.For<ISeatHoldRepository>();
     public IOrderRepository Orders { get; } = Substitute.For<IOrderRepository>();
     public IIdempotencyDao Idempotency { get; } = Substitute.For<IIdempotencyDao>();
+    public IOrderNotificationQueue Notifications { get; } = Substitute.For<IOrderNotificationQueue>();
     public FakeTimeProvider Clock { get; } = new(Now);
 
     public BookingTestContext()
@@ -50,7 +51,7 @@ internal sealed class BookingTestContext
     }
 
     public BookingService Service() => new(Uow, Gate, Performances, Seats, Holds, Orders,
-                                           new IdempotencyGuard(Idempotency), Clock,
+                                           new IdempotencyGuard(Idempotency), Notifications, Clock,
                                            NullLogger<BookingService>.Instance);
 
     // ── 測試資料 ──────────────────────────────────────────────────────

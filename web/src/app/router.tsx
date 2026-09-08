@@ -10,8 +10,10 @@ import { RegisterPage } from '../features/auth/RegisterPage';
 import { RequireAuth } from '../features/auth/RequireAuth';
 import { OrdersPage } from '../features/orders/OrdersPage';
 import { OrderDetailPage } from '../features/orders/OrderDetailPage';
+import { AdminPage } from '../features/admin/AdminPage';
+import { RequireAdmin } from '../features/admin/RequireAdmin';
 
-/** 路由表對應設計文件 13 第 4 節。後台在階段 7 加入。 */
+/** 路由表對應設計文件 13 第 4 節。 */
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
@@ -29,6 +31,9 @@ export const router = createBrowserRouter([
       { path: '/holds/:holdId', element: <RequireAuth><HoldPage /></RequireAuth> },
       { path: '/orders', element: <RequireAuth><OrdersPage /></RequireAuth> },
       { path: '/orders/:orderId', element: <RequireAuth><OrderDetailPage /></RequireAuth> },
+
+      // 只有管理者。前端擋只是 UX，真正的把關是後端的 [Authorize(Roles = "Admin")]
+      { path: '/admin', element: <RequireAdmin><AdminPage /></RequireAdmin> },
     ],
   },
 ]);

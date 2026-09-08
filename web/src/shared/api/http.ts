@@ -80,7 +80,8 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
-async function request<T>(method: 'GET' | 'POST', path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T>(method: 'GET' | 'POST' | 'PATCH', path: string,
+                          options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
 
   const token = tokenStore.read();
@@ -123,6 +124,9 @@ export const apiGet = <T>(path: string, signal?: AbortSignal): Promise<T> =>
 
 export const apiPost = <T>(path: string, body: unknown, options: Omit<RequestOptions, 'body'> = {}): Promise<T> =>
   request<T>('POST', path, { ...options, body });
+
+export const apiPatch = <T>(path: string, body: unknown, options: Omit<RequestOptions, 'body'> = {}): Promise<T> =>
+  request<T>('PATCH', path, { ...options, body });
 
 /**
  * 有限重試。

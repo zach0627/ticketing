@@ -15,25 +15,38 @@ namespace Ticketing.Api.Tests.Infrastructure;
 /// 有了這個開關就能精確地說：「A 先拿到 gate 並停住 → 讓 B 進來 → 放行 A」，
 /// 而且反過來再跑一次。
 /// </summary>
+public enum GateStage
+{
+    /// <summary>購票的第二道 gate。停在這裡＝握著買家的 UPDLOCK。</summary>
+    Buyer,
+
+    /// <summary>管理操作的 gate。停在這裡＝握著場次的 XLOCK。</summary>
+    PerformanceWrite
+}
+
 public sealed class BookingGatePause
 {
     private TaskCompletionSource _parked = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private TaskCompletionSource _release = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _armed;
+    private GateStage _stage;
 
-    /// <summary>下一個通過買家 gate 的請求會停住。回傳的 Task 在它真的停住時完成。</summary>
-    public Task ArmAsync()
+    /// <summary>下一個通過指定 gate 的請求會停住。回傳的 Task 在它真的停住時完成。</summary>
+    public Task ArmAsync(GateStage stage = GateStage.Buyer)
     {
         _parked = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         _release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _stage = stage;
         Interlocked.Exchange(ref _armed, 1);
         return _parked.Task;
     }
 
     public void Release() => _release.TrySetResult();
 
-    internal async Task WaitIfArmedAsync(CancellationToken ct)
+    internal async Task WaitIfArmedAsync(GateStage stage, CancellationToken ct)
     {
+        if (Volatile.Read(ref _armed) == 0 || _stage != stage) return;
+
         // Exchange 保證只有一個請求會被攔下來，之後的直接通過
         if (Interlocked.Exchange(ref _armed, 0) == 0) return;
 
@@ -52,8 +65,15 @@ public sealed class PausingBookingWriteGate(SqlBookingWriteGate inner, BookingGa
     public Task<bool> EnterPerformanceReadAsync(int performanceId, CancellationToken ct)
         => inner.EnterPerformanceReadAsync(performanceId, ct);
 
-    public Task<bool> EnterPerformanceWriteAsync(int performanceId, CancellationToken ct)
-        => inner.EnterPerformanceWriteAsync(performanceId, ct);
+    public async Task<bool> EnterPerformanceWriteAsync(int performanceId, CancellationToken ct)
+    {
+        var entered = await inner.EnterPerformanceWriteAsync(performanceId, ct);
+
+        // 停在這裡＝管理操作握著場次的 XLOCK，購票會在 SQL Server 裡排隊
+        await pause.WaitIfArmedAsync(GateStage.PerformanceWrite, ct);
+
+        return entered;
+    }
 
     public Task EnterAllPerformancesWriteAsync(CancellationToken ct)
         => inner.EnterAllPerformancesWriteAsync(ct);
@@ -64,7 +84,7 @@ public sealed class PausingBookingWriteGate(SqlBookingWriteGate inner, BookingGa
 
         // 停在這裡＝這個交易**已經握著買家的 UPDLOCK**。
         // 同一個買家的第二個請求會在 SQL Server 裡排隊，直到我們放行為止。
-        await pause.WaitIfArmedAsync(ct);
+        await pause.WaitIfArmedAsync(GateStage.Buyer, ct);
 
         return entered;
     }

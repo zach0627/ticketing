@@ -10,8 +10,10 @@ using Ticketing.Domain.Catalog;
 using Ticketing.Domain.Common;
 using Ticketing.Domain.Orders;
 using Ticketing.Domain.Users;
+using Ticketing.Application.Admin;
 using Ticketing.Application.Orders;
 using Ticketing.Infrastructure.Persistence;
+using Ticketing.Infrastructure.Messaging;
 using Ticketing.Infrastructure.Persistence.Dao;
 using Ticketing.Infrastructure.Persistence.Queries;
 using Ticketing.Infrastructure.Persistence.Repositories;
@@ -47,10 +49,18 @@ public static class DependencyInjection
 
         // ── DAO：表層存取，沒有聚合也沒有行為（ADR-2）──
         services.AddScoped<IIdempotencyDao, IdempotencyDao>();
+        services.AddScoped<IAdminDao, AdminDao>();
 
         // ── 唯讀查詢：投影成 DTO，不經過 Domain（ADR-5）──
         services.AddScoped<ICatalogQueries, CatalogQueries>();
         services.AddScoped<IOrderQueries, OrderQueries>();
+        services.AddScoped<IAdminQueries, AdminQueries>();
+
+        // ── 背景通知：佇列是 Singleton（跨請求共用），worker 每筆自己開 scope ──
+        services.AddSingleton<ChannelOrderNotificationQueue>();
+        services.AddSingleton<IOrderNotificationQueue>(sp =>
+            sp.GetRequiredService<ChannelOrderNotificationQueue>());
+        services.AddHostedService<OrderNotificationWorker>();
 
         // ── seed：CLI 與整合測試共用同一段程式 ──
         services.AddScoped<CatalogSeeder>();

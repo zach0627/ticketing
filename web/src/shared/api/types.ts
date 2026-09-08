@@ -185,3 +185,47 @@ export interface OrderSummaryDto {
   currency: string;
   createdAtUtc: string;
 }
+
+// ── 後台（階段 7）──
+
+export interface AdminPerformanceDto {
+  id: number;
+  eventCode: string;
+  eventTitle: string;
+  startsAtUtc: string;
+  isSalesPaused: boolean;
+  salesStatus: SalesStatus;
+}
+
+export interface DashboardDto {
+  activeHolds: number;
+  soldSeats: number;
+  orders: number;
+  serverNowUtc: string;
+  performances: AdminPerformanceDto[];
+}
+
+export interface AdminOrderDto {
+  id: string;
+  holdId: string;
+  performanceId: number;
+  eventTitle: string;
+  startsAtUtc: string;
+  buyerDisplayName: string;
+  quantity: number;
+  totalAmount: number;
+  currency: string;
+  createdAtUtc: string;
+}
+
+export interface PauseSalesResult {
+  performanceId: number;
+  isSalesPaused: boolean;
+}
+
+export interface ResetResult {
+  ordersDeleted: number;
+  holdsDeleted: number;
+  seatsReleased: number;
+  earliestPerformanceUtc: string;
+}

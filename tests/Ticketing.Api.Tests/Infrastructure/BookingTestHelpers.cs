@@ -148,6 +148,10 @@ internal static class BookingTestHelpers
     /// 為什麼不用 API 建？因為要把某一排卡成「沒有連續 6 席」得同時佔住好幾個不相鄰的位子，
     /// 而一個買家在同一場只能有一筆有效保留——用 API 得開一堆帳號，慢又難讀。
     /// 這裡建立的資料完全符合外鍵與 CHECK（Held 必須同時有 HoldId 與 HeldUntilUtc）。
+    ///
+    /// <paramref name="holdFor"/> 給**負值**就會做出一筆「資料庫還是 Active、但時間早就過了」的保留——
+    /// 這正是沒有背景清理程式時的真實狀態。<c>CreatedAtUtc</c> 要跟著往前推，
+    /// 否則會撞到 <c>CK_SeatHolds_Expiry</c>（到期必須晚於建立）。
     /// </summary>
     public static async Task<Guid> BlockSeatsAsync(this TestDatabase db, int performanceId, Guid buyerId,
         TimeSpan holdFor, params int[] seatIds)
@@ -160,9 +164,12 @@ internal static class BookingTestHelpers
         await using (var insert = connection.CreateCommand())
         {
             insert.CommandText = """
+                DECLARE @expires datetimeoffset(7) = DATEADD(second, @seconds, SYSDATETIMEOFFSET());
+
                 INSERT dbo.SeatHolds (Id, BuyerId, PerformanceId, Status, CreatedAtUtc, ExpiresAtUtc, TotalAmount)
-                VALUES (@id, @buyer, @performance, 'Active', SYSDATETIMEOFFSET(),
-                        DATEADD(second, @seconds, SYSDATETIMEOFFSET()), 100);
+                VALUES (@id, @buyer, @performance, 'Active',
+                        DATEADD(minute, -5, @expires),      -- 跟真實保留一樣：五分鐘前建立的
+                        @expires, 100);
                 """;
             insert.Parameters.AddWithValue("@id", holdId);
             insert.Parameters.AddWithValue("@buyer", buyerId);

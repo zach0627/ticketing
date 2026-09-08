@@ -193,3 +193,12 @@ h2 { font-size: 1.15rem; margin: 32px 0 12px; }
   border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 12px 14px;
 }
 .ticket__code { font-family: ui-monospace, monospace; font-size: .75rem; color: var(--muted); }
+
+/* ── 後台（階段 7）── */
+.cta--danger { background: #7a2f2f; color: var(--text); border: none; font: inherit; font-weight: 600; cursor: pointer; }
+.cta--danger:disabled { background: var(--surface-2); color: var(--muted); cursor: default; }
+.auth-form__reset-input {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 9px 12px; font: inherit; width: 140px;
+}
