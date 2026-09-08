@@ -62,7 +62,9 @@ h2 { font-size: 1.15rem; margin: 32px 0 12px; }
   transition: border-color .15s;
 }
 .card:hover { border-color: var(--accent); }
-.card__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+/* object-position 往上偏一點：活動照的主體（人臉、球員）幾乎都在畫面上半部，
+   置中裁切會先切掉頭。40% 對人像與動作照都成立（兩種都實際比對過）。 */
+.card__image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: center 40%; display: block; }
 .card__body { padding: 12px 14px 14px; }
 .card__title { font-size: 1.05rem; margin: 8px 0 2px; }
 .card__performer { color: var(--muted); font-size: .85rem; margin: 0 0 6px; }
@@ -80,7 +82,10 @@ h2 { font-size: 1.15rem; margin: 32px 0 12px; }
 .status--salesclosed { color: var(--muted); }
 
 /* ── 詳情 ── */
-.detail__image { width: 100%; max-height: 320px; object-fit: cover; border-radius: var(--radius); }
+/* ⚠️ 原本是 max-height: 320px。容器寬 1048px 時那等於一個 3.28:1 的框，
+   但圖是 3:2——object-fit: cover 會切掉超過一半的高度，人臉直接不見。
+   改用 aspect-ratio 而不是固定高度：框的比例跟著寬度走，裁掉的量才可預測。 */
+.detail__image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; object-position: center 40%; border-radius: var(--radius); }
 .detail__performer { color: var(--muted); margin: 4px 0 12px; }
 .detail__description { max-width: 62ch; }
 .detail__facts { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin: 20px 0; }
