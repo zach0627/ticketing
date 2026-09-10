@@ -1,7 +1,7 @@
 import { Outlet, ScrollRestoration, useLocation } from 'react-router';
-import { SiteHeader } from './SiteHeader';
-import { SiteFooter } from './SiteFooter';
-import { useAuth } from '../features/auth/authContext';
+import { useAuth } from '../features/auth';
+import { SiteFooter } from './components/SiteFooter';
+import { SiteHeader } from './components/SiteHeader';
 
 /** 版面外框：所有頁面共用的頁首，內容由巢狀路由填進 Outlet。 */
 export function AppLayout() {

@@ -30,11 +30,17 @@
 
 ![選座頁：顯示票區、排號、價格與座位狀態](docs/screenshots/03-seats.png)
 
-### 付款與票券
+### 確認訂單與付款
 
-確認座位、金額與剩餘保留時間，完成模擬付款後取得票券；手機亦有完整購票操作。
+檢視活動、座位明細、票券總額與剩餘保留時間。確認後可完成模擬付款，或取消保留重新選位。
 
-![付款完成與電子票券](docs/screenshots/05-tickets.png)
+![確認訂單與付款完整頁面：包含保留倒數、活動資訊、座位明細、付款方式與付款按鈕](docs/screenshots/04-payment.png)
+
+### 電子票券與訂單資訊
+
+付款完成後顯示每張票券的票區、排數、座號與票券編號，並可查看訂單資訊和總金額。以下為完整頁面，包含兩張票券與頁尾；所有票券皆無實際入場效力。
+
+![電子票券完整頁面：兩張票券、訂單明細與票券無實際入場效力標示](docs/screenshots/05-tickets.png)
 
 ## 功能
 
@@ -48,7 +54,7 @@
 
 ### 管理
 
-- 查看訂單、售票數、收入與有效保留。
+- 查看訂單、已售座位與有效保留數量。
 - 暫停或恢復單一場次售票。
 - 重置購票資料並將活動日期平移至未來。
 
@@ -83,7 +89,7 @@ flowchart LR
 | Infrastructure | EF Core、SQL Server、Repository／DAO、身分與背景處理 |
 | Tests | xUnit、NSubstitute、WebApplicationFactory、Testcontainers |
 
-前端依 `app／features／shared` 切分責任。各功能自帶元件、hooks、API 與 CSS；全域只保留色彩字級 tokens、基礎樣式和共用版面。路由延後載入，下拉選單使用 Radix Select，Roboto 字型由本站提供。搜尋組字、選位與金額計算、倒數及操作恢復均有前端測試。
+前端依 `app／features／shared` 切分，各功能再區分 `pages`、`components`、`hooks`、`api`、`model`、`styles`。頁面只組裝流程與呈現，查詢、表單及購票操作由專用 hooks 管理；跨功能使用公開入口，並以自動測試守住依賴方向與循環檢查。[前端架構與驗證](web/README.md)列出各層責任和流程。路由延後載入，下拉選單使用 Radix Select，Roboto 字型由本站提供；全域 CSS 只保留 tokens、基礎樣式和共用版面。
 
 購票寫入固定依序取得場次與買家 gate，再檢查冪等紀錄、重新載入規則所需資料並執行條件更新；整段在同一個資料庫交易中完成。Controller 不直接操作 `DbContext`，Application 也不依賴 EF Core 或 `HttpContext`。
 

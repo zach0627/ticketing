@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   toggleSelection,
   selectedTotal,
-} from '../src/features/booking/selection.ts';
+} from '../src/features/booking/model/selection.ts';
 const seats = [
   { id: 1, sectionId: 10, status: 'Available' },
   { id: 2, sectionId: 10, status: 'Available' },
@@ -31,7 +31,7 @@ test('summary uses prices from loaded ticket sections', () => {
 
 test('login draft restores only the matching performance and rejects malformed seats', async () => {
   const { readSelectionDraft } =
-    await import('../src/features/booking/selection.ts');
+    await import('../src/features/booking/model/selection.ts');
   const draft = {
     performanceId: 1,
     sectionId: 11,

@@ -1,6 +1,7 @@
-import type { ApiProblem } from './types';
+import type { ApiProblem } from './ApiProblem';
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080/api/v1';
+const baseUrl =
+  import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080/api/v1';
 
 /**
  * 後端回的業務錯誤。`code` 是前端判斷用的，訊息只給人看。
@@ -14,7 +15,13 @@ export class ApiError extends Error {
   /** `ActiveHoldExists` 時後端會附上既有的保留 id。 */
   readonly holdId?: string;
 
-  constructor(status: number, code: string, message: string, traceId?: string, holdId?: string) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    traceId?: string,
+    holdId?: string,
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -80,9 +87,15 @@ interface RequestOptions {
   headers?: Record<string, string>;
 }
 
-async function request<T>(method: 'GET' | 'POST' | 'PATCH', path: string,
-                          options: RequestOptions = {}): Promise<T> {
-  const headers: Record<string, string> = { Accept: 'application/json', ...options.headers };
+async function request<T>(
+  method: 'GET' | 'POST' | 'PATCH',
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    ...options.headers,
+  };
 
   const token = tokenStore.read();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -96,7 +109,9 @@ async function request<T>(method: 'GET' | 'POST' | 'PATCH', path: string,
   });
 
   if (response.ok) {
-    return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
+    return response.status === 204
+      ? (undefined as T)
+      : ((await response.json()) as T);
   }
 
   let problem: ApiProblem = {};
@@ -122,11 +137,17 @@ async function request<T>(method: 'GET' | 'POST' | 'PATCH', path: string,
 export const apiGet = <T>(path: string, signal?: AbortSignal): Promise<T> =>
   request<T>('GET', path, { signal });
 
-export const apiPost = <T>(path: string, body: unknown, options: Omit<RequestOptions, 'body'> = {}): Promise<T> =>
-  request<T>('POST', path, { ...options, body });
+export const apiPost = <T>(
+  path: string,
+  body: unknown,
+  options: Omit<RequestOptions, 'body'> = {},
+): Promise<T> => request<T>('POST', path, { ...options, body });
 
-export const apiPatch = <T>(path: string, body: unknown, options: Omit<RequestOptions, 'body'> = {}): Promise<T> =>
-  request<T>('PATCH', path, { ...options, body });
+export const apiPatch = <T>(
+  path: string,
+  body: unknown,
+  options: Omit<RequestOptions, 'body'> = {},
+): Promise<T> => request<T>('PATCH', path, { ...options, body });
 
 /**
  * 有限重試。
@@ -136,13 +157,18 @@ export const apiPatch = <T>(path: string, body: unknown, options: Omit<RequestOp
  *
  * 呼叫端一定要沿用**同一個 Idempotency-Key**，否則重試就變成第二次購買。
  */
-export async function withRetry<T>(send: () => Promise<T>, attempts = 3): Promise<T> {
+export async function withRetry<T>(
+  send: () => Promise<T>,
+  attempts = 3,
+): Promise<T> {
   for (let attempt = 1; ; attempt++) {
     try {
       return await send();
     } catch (error) {
       const retriable =
-        !(error instanceof ApiError) || error.status === 429 || error.status >= 500;
+        !(error instanceof ApiError) ||
+        error.status === 429 ||
+        error.status >= 500;
 
       if (!retriable || attempt >= attempts) throw error;
 

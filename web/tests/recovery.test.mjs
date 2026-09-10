@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { pendingOperations } from '../src/shared/api/idempotency.ts';
+import { pendingOperations } from '../src/features/booking/api/pendingOperations.ts';
 import {
   shouldPollSeats,
   seatIdleTimeout,
-} from '../src/features/booking/polling.ts';
+} from '../src/features/booking/model/polling.ts';
 
 test('pending writes restore only for the same buyer, operation and resource', () => {
   const values = new Map();

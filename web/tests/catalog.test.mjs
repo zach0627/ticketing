@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterEvents } from '../src/features/catalog/catalogFilters.ts';
+import { filterEvents } from '../src/features/catalog/model/catalogFilters.ts';
 
 const events = [
   {

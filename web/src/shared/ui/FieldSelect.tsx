@@ -1,5 +1,5 @@
-import { useId } from 'react';
 import * as Select from '@radix-ui/react-select';
+import { useId } from 'react';
 import { Icon } from './Icon';
 import './fieldSelect.css';
 

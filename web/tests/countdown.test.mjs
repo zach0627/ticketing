@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   remainingSeconds,
   formatRemaining,
-} from '../src/features/booking/countdown.ts';
+} from '../src/features/booking/model/countdown.ts';
 
 test('countdown uses server duration and monotonic elapsed time, clamped at zero', () => {
   const server = '2026-09-10T01:00:00Z',

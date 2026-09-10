@@ -6,7 +6,7 @@ import {
   screen,
 } from '@testing-library/react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { CatalogSearch } from '../src/features/catalog/CatalogSearch';
+import { CatalogSearch } from '../src/features/catalog/components/CatalogSearch';
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => {

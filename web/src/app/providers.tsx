@@ -1,9 +1,8 @@
-import type { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
+import { AuthProvider, googleClientId } from '../features/auth';
 import { ApiError } from '../shared/api/http';
-import { AuthProvider } from '../features/auth/AuthProvider';
-import { googleClientId } from '../features/auth/googleConfig';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +22,11 @@ const queryClient = new QueryClient({
  */
 function GoogleIdentity({ children }: { children: ReactNode }) {
   if (!googleClientId) return <>{children}</>;
-  return <GoogleOAuthProvider clientId={googleClientId}>{children}</GoogleOAuthProvider>;
+  return (
+    <GoogleOAuthProvider clientId={googleClientId}>
+      {children}
+    </GoogleOAuthProvider>
+  );
 }
 
 export function Providers({ children }: { children: ReactNode }) {

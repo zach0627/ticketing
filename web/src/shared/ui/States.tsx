@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { ApiError } from '../api/http';
 import { Link } from 'react-router';
+import { ApiError } from '../api/http';
 import { Icon } from './Icon';
 
 /** 實測：Azure SQL serverless 從 auto-pause 醒來要 30～60 秒（設計文件 09 第 5 節）。 */

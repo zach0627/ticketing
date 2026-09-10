@@ -43,3 +43,7 @@ dist-ssr/
 # ── 本機 agent／工具狀態（不是專案的一部分）─────────────
 .omc/
 .claude/
+
+# Browser capture working files
+.playwright-cli/
+output/playwright/
