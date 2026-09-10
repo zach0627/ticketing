@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AuthShell } from './AuthShell';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { ApiError } from '../../shared/api/http';
@@ -15,7 +16,9 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const returnPath = safeReturnPath((location.state as { from?: unknown } | null)?.from);
+  const returnPath = safeReturnPath(
+    (location.state as { from?: unknown } | null)?.from,
+  );
 
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -30,12 +33,25 @@ export function RegisterPage() {
 
     try {
       signIn(await authApi.register({ email, password, displayName }));
-      navigate(returnPath, { replace: true });
+      navigate(returnPath, {
+        replace: true,
+        state: {
+          seatDraft: (location.state as { seatDraft?: unknown } | null)
+            ?.seatDraft,
+        },
+      });
     } catch (caught) {
-      if (caught instanceof ApiError && caught.code === 'EmailAlreadyRegistered') {
+      if (
+        caught instanceof ApiError &&
+        caught.code === 'EmailAlreadyRegistered'
+      ) {
         setError('此 Email 已經註冊過了，請直接登入，或改用當初的登入方式。');
       } else {
-        setError(caught instanceof ApiError ? caught.message : '註冊失敗，請稍後再試。');
+        setError(
+          caught instanceof ApiError
+            ? caught.message
+            : '註冊失敗，請稍後再試。',
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -43,10 +59,11 @@ export function RegisterPage() {
   }
 
   return (
-    <section className="auth">
-      <h1>註冊</h1>
-
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+    <AuthShell
+      title="註冊會員"
+      subtitle="建立帳號，讓喜歡的活動成為生活的一部分。"
+    >
+      <form className="auth-form" onSubmit={handleSubmit}>
         <label htmlFor="register-email">Email</label>
         <input
           id="register-email"
@@ -67,7 +84,9 @@ export function RegisterPage() {
           onChange={(e) => setDisplayName(e.target.value)}
         />
 
-        <label htmlFor="register-password">密碼（至少 {passwordMinLength} 個字元）</label>
+        <label htmlFor="register-password">
+          密碼（至少 {passwordMinLength} 個字元）
+        </label>
         <input
           id="register-password"
           type="password"
@@ -90,13 +109,24 @@ export function RegisterPage() {
       </form>
 
       <GoogleSignInButton
-        onSuccess={() => navigate(returnPath, { replace: true })}
+        onSuccess={() =>
+          navigate(returnPath, {
+            replace: true,
+            state: {
+              seatDraft: (location.state as { seatDraft?: unknown } | null)
+                ?.seatDraft,
+            },
+          })
+        }
         onFailure={setError}
       />
 
       <p className="auth__switch">
-        已經有帳號了？<Link to="/login" state={location.state}>去登入</Link>
+        已經有帳號了？
+        <Link to="/login" state={location.state}>
+          立即登入
+        </Link>
       </p>
-    </section>
+    </AuthShell>
   );
 }

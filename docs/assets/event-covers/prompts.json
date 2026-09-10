@@ -1,0 +1,81 @@
+{
+  "tool": "Built-in imagegen",
+  "format": "1536×1024，3:2，虛構成人演出者，無活動文字、浮水印或真實品牌。",
+  "covers": [
+    {
+      "code": "C01",
+      "title": "LUMINA《BLOOM》台北演唱會",
+      "scene": "Five fictional adult East Asian female K-pop idols with distinct faces, styled in contemporary white and pale pink stage fashion, poised confidently together in a sunlit glass greenhouse with oversized sculptural pink flowers and sky blue backdrop. Fresh premium fashion campaign, joyful and modern, crisp balanced composition, full upper bodies with generous headroom. White, petal pink and sky blue dominate, beautiful editorial flash photography."
+    },
+    {
+      "code": "C02",
+      "title": "周以川《沿途有光》巡迴演唱會",
+      "scene": "A fictional charismatic adult East Asian male pop singer, casually elegant ivory jacket, standing with a vintage handheld microphone in a warm amber and apricot stage set, sunlike backlight, subtle film grain, premium Taiwanese Mandopop album tour campaign, waist up portrait placed on right third, abstract large light circles behind him, inviting and golden, no lettering."
+    },
+    {
+      "code": "C03",
+      "title": "逆風植栽《噪音花園》LIVE",
+      "scene": "Four fictional adult East Asian indie rock musicians, woman vocalist and three men holding electric guitar and bass, urban rooftop with lush plants, off-white and grassy green backdrop, sunny afternoon, casually art-directed indie music festival campaign photography, 35mm film look, genuine faces, energetic relaxed poses, full upper bodies and ample space above heads."
+    },
+    {
+      "code": "C04",
+      "title": "許若棠《午夜留聲》爵士之夜",
+      "scene": "Fictional adult East Asian woman jazz singer in an elegant emerald satin suit singing into a silver vintage microphone, saxophonist softly in background, tasteful intimate jazz club in rich burgundy and teal with warm amber table lamps, photographic editorial music campaign, refined, cinematic contrast with clearly lit face, generous headroom and centered medium composition."
+    },
+    {
+      "code": "C05",
+      "title": "Signal Room《微光頻率》電子現場",
+      "scene": "A fictional adult East Asian female electronic music producer performing on synthesizers, metallic silver outfit, enormous hot coral red and electric violet light installation in an airy futuristic concert hall, vibrant abstract laser fan overhead, cool chrome surfaces, dynamic contemporary live electronic campaign photography, wide shot, clear human subject, no logos."
+    },
+    {
+      "code": "C06",
+      "title": "江沐禾《山海之間》不插電音樂會",
+      "scene": "A fictional adult East Asian female folk singer with long black hair in an airy white cotton dress, holding a natural acoustic guitar on a sunlit coastal grassland with turquoise ocean and peach sky, contemporary acoustic music campaign photography, dreamy yet realistic, airy gentle pastel palette, delicate grain, medium wide full body composition with headroom."
+    },
+    {
+      "code": "C07",
+      "title": "陸承恩《慢速心跳》R&B LIVE",
+      "scene": "A fictional stylish adult East Asian male R&B singer with short hair, silky wine-red shirt and silver necklace, waist-up portrait on a vermilion red sculptural set, cream circular spotlight, moody warm skin with excellent facial detail, premium contemporary R&B tour editorial, restrained fashion photography, generous negative space and headroom."
+    },
+    {
+      "code": "C08",
+      "title": "青杉弦樂團《弦上風景》音樂會",
+      "scene": "A fictional small ensemble of adult East Asian string musicians with violins and cello in cream modern formalwear, performing in a stunning light-filled contemporary concert hall of blond wood, golden afternoon shafts of sunlight, symmetrical architectural backdrop, elegant high-end classical crossover campaign photography, serene warm ivory palette, wide composition."
+    },
+    {
+      "code": "C09",
+      "title": "程以律《街角回聲》巡演",
+      "scene": "A fictional adult East Asian male hip hop artist with confident expressive pose, modern oversized slate blue streetwear, silver chain, futuristic mint green and cyan concrete skatepark set, low angle editorial music campaign with direct flash, graphic architectural lines, high contrast fresh colors, no graffiti text no logos, head fully inside frame."
+    },
+    {
+      "code": "C10",
+      "title": "ORBIT FOUR《平行星球》世界巡演",
+      "scene": "Four fictional adult East Asian male K-pop idols with distinct handsome faces in contemporary black white and silver stage outfits, standing against an icy blue futuristic architectural space with floating silver spheres, very polished Korean pop group campaign photography, clean energetic art direction, premium details, medium wide composition with all heads and upper bodies safe within central frame, sky blue white silver palette."
+    },
+    {
+      "code": "C11",
+      "title": "白映寧《雨停以前》鋼琴獨奏會",
+      "scene": "A fictional adult East Asian woman pianist in minimalist pale lavender dress seated at an elegant white grand piano, enormous studio windows revealing a hazy lavender rain-washed city, soft diffuse daylight, calm fine art music campaign photography, pale lilac ivory and muted blue, wide framing includes whole piano and woman's face, premium editorial finish."
+    },
+    {
+      "code": "C12",
+      "title": "潮線樂團《港灣邊界》LIVE TOUR",
+      "scene": "Four fictional adult East Asian alternative rock musicians, including a female bassist, posed with instruments on a harbor pier at sunset, coral pink sky and deep blue water, authentic denim and contemporary stage clothes, nostalgic yet modern alternative band tour photography, large warm sun, widescreen editorial framing, faces visible and no text."
+    },
+    {
+      "code": "S01",
+      "title": "港都海鷗 vs 山城野牛｜棒球例行賽",
+      "scene": "Professional sports campaign photo of a fictional adult East Asian baseball batter in clean white and teal uniform mid-swing, bright green baseball field and sunlit packed stadium in background, dynamic airborne clay particles, no real team logos, crisp realistic athletic anatomy, premium ticketing event cover, energetic teal and sunny gold palette, full player body with generous framing."
+    },
+    {
+      "code": "S02",
+      "title": "星城疾風 vs 河岸巨人｜籃球例行賽",
+      "scene": "Premium sports campaign photo of a fictional adult East Asian professional basketball player in coral red sleeveless jersey flying toward hoop for a dunk, indoor arena with warm amber lights and cobalt blue crowd, dynamic action, basketball prominently visible, realistic anatomy, no real team marks no readable jersey text, entire head and raised ball safely inside image, exciting and cinematic."
+    },
+    {
+      "code": "S03",
+      "title": "青原 FC vs 白港 FC｜足球聯賽",
+      "scene": "Dynamic photographic sports campaign of two fictional adult East Asian professional football players, one in forest green kit and one in white kit, competing for a black-white soccer ball on vivid emerald grass, bright open-air stadium, late afternoon sunlight, dramatic low angle action with both faces and bodies inside frame, no logos no team text, premium modern ticketing website asset."
+    }
+  ]
+}

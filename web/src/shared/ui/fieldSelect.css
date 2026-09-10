@@ -1,0 +1,108 @@
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.select-field > label {
+  font-size: var(--font-body);
+  color: var(--text);
+  font-weight: 400;
+}
+.select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #b7bec3;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+  line-height: 1.5;
+}
+.select-trigger > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.select-trigger:hover {
+  border-color: #7c939f;
+}
+.select-trigger[data-state='open'],
+.select-trigger[data-filtered] {
+  border-color: var(--accent);
+}
+.select-trigger[data-state='open'] {
+  outline: 2px solid #d9edf6;
+  outline-offset: 1px;
+}
+.select-trigger:disabled {
+  background: #f1f3f4;
+  color: #899198;
+  border-color: #d7dce0;
+}
+.select-chevron {
+  display: flex;
+  color: #6e8a98;
+  transform: rotate(90deg);
+  transition: transform 0.15s;
+}
+.select-trigger[data-state='open'] .select-chevron {
+  transform: rotate(-90deg);
+}
+.select-menu {
+  z-index: 80;
+  min-width: var(--radix-select-trigger-width);
+  max-width: calc(100vw - 24px);
+  max-height: min(320px, var(--radix-select-content-available-height));
+  overflow: hidden;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid #d8dfe3;
+  border-radius: 6px;
+  box-shadow: 0 5px 20px #152b4526;
+}
+.select-options {
+  padding: 5px;
+}
+.select-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 38px 9px 12px;
+  border-radius: 3px;
+  font-size: 16px;
+  line-height: 1.5;
+  outline: none;
+  cursor: pointer;
+  user-select: none;
+}
+.select-option[data-highlighted] {
+  background: #eaf4f9;
+  color: #245c77;
+}
+.select-option[data-state='checked'] {
+  color: var(--accent);
+  font-weight: 500;
+  background: #f0f7fb;
+}
+.select-check {
+  display: flex;
+  position: absolute;
+  right: 12px;
+}
+.select-scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  color: var(--accent);
+  background: #fff;
+}

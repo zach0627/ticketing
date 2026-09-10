@@ -1,39 +1,114 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Outlet } from 'react-router';
 import { AppLayout } from './AppLayout';
-import { HomePage } from '../features/catalog/HomePage';
-import { EventDetailPage } from '../features/catalog/EventDetailPage';
-import { SeatSelectionPage } from '../features/booking/SeatSelectionPage';
-import { HoldPage } from '../features/booking/HoldPage';
-import { AccountPage } from '../features/auth/AccountPage';
-import { LoginPage } from '../features/auth/LoginPage';
-import { RegisterPage } from '../features/auth/RegisterPage';
 import { RequireAuth } from '../features/auth/RequireAuth';
-import { OrdersPage } from '../features/orders/OrdersPage';
-import { OrderDetailPage } from '../features/orders/OrderDetailPage';
-import { AdminPage } from '../features/admin/AdminPage';
 import { RequireAdmin } from '../features/admin/RequireAdmin';
+import { Spinner } from '../shared/ui/States';
 
-/** 路由表對應設計文件 13 第 4 節。 */
+/** 路由依功能載入；授權容器只決定呈現，資源存取仍由 API 驗證。 */
 export const router = createBrowserRouter([
   {
     element: <AppLayout />,
+    HydrateFallback: Spinner,
     children: [
-      // 公開
-      { path: '/', element: <HomePage /> },
-      { path: '/events/:code', element: <EventDetailPage /> },
-      // 座位圖本身公開；按下「保留」才需要登入（會記住路徑再導去登入頁）
-      { path: '/performances/:performanceId/seats', element: <SeatSelectionPage /> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
-
-      // 需要登入
-      { path: '/account', element: <RequireAuth><AccountPage /></RequireAuth> },
-      { path: '/holds/:holdId', element: <RequireAuth><HoldPage /></RequireAuth> },
-      { path: '/orders', element: <RequireAuth><OrdersPage /></RequireAuth> },
-      { path: '/orders/:orderId', element: <RequireAuth><OrderDetailPage /></RequireAuth> },
-
-      // 只有管理者。前端擋只是 UX，真正的把關是後端的 [Authorize(Roles = "Admin")]
-      { path: '/admin', element: <RequireAdmin><AdminPage /></RequireAdmin> },
+      {
+        path: '/',
+        lazy: async () => ({
+          Component: (await import('../features/catalog/HomePage')).HomePage,
+        }),
+      },
+      {
+        path: '/guide',
+        lazy: async () => ({
+          Component: (await import('./GuidePage')).GuidePage,
+        }),
+      },
+      {
+        path: '/events/:code',
+        lazy: async () => ({
+          Component: (await import('../features/catalog/EventDetailPage'))
+            .EventDetailPage,
+        }),
+      },
+      // 座位圖公開；送出保留前登入，並接續選位草稿。
+      {
+        path: '/performances/:performanceId/seats',
+        lazy: async () => ({
+          Component: (await import('../features/booking/SeatSelectionPage'))
+            .SeatSelectionPage,
+        }),
+      },
+      {
+        path: '/login',
+        lazy: async () => ({
+          Component: (await import('../features/auth/LoginPage')).LoginPage,
+        }),
+      },
+      {
+        path: '/register',
+        lazy: async () => ({
+          Component: (await import('../features/auth/RegisterPage'))
+            .RegisterPage,
+        }),
+      },
+      {
+        element: (
+          <RequireAuth>
+            <Outlet />
+          </RequireAuth>
+        ),
+        children: [
+          {
+            path: '/account',
+            lazy: async () => ({
+              Component: (await import('../features/auth/AccountPage'))
+                .AccountPage,
+            }),
+          },
+          {
+            path: '/holds/:holdId',
+            lazy: async () => ({
+              Component: (await import('../features/booking/HoldPage'))
+                .HoldPage,
+            }),
+          },
+          {
+            path: '/orders',
+            lazy: async () => ({
+              Component: (await import('../features/orders/OrdersPage'))
+                .OrdersPage,
+            }),
+          },
+          {
+            path: '/orders/:orderId',
+            lazy: async () => ({
+              Component: (await import('../features/orders/OrderDetailPage'))
+                .OrderDetailPage,
+            }),
+          },
+        ],
+      },
+      {
+        element: (
+          <RequireAdmin>
+            <Outlet />
+          </RequireAdmin>
+        ),
+        children: [
+          {
+            path: '/admin',
+            lazy: async () => ({
+              Component: (await import('../features/admin/AdminPage'))
+                .AdminPage,
+            }),
+          },
+        ],
+      },
+      {
+        path: '*',
+        lazy: async () => ({
+          Component: (await import('./NotFoundPage')).NotFoundPage,
+        }),
+      },
     ],
   },
 ]);

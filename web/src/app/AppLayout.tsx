@@ -1,14 +1,31 @@
-import { Outlet } from 'react-router';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { SiteHeader } from './SiteHeader';
+import { SiteFooter } from './SiteFooter';
+import { useAuth } from '../features/auth/authContext';
 
 /** 版面外框：所有頁面共用的頁首，內容由巢狀路由填進 Outlet。 */
 export function AppLayout() {
+  const { pathname } = useLocation();
+  const { user } = useAuth();
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        跳至主要內容
+      </a>
       <SiteHeader />
-      <main>
-        <Outlet />
+      <main
+        id="main-content"
+        className={
+          pathname === '/'
+            ? 'main-content main-content--home'
+            : 'container main-content'
+        }
+        tabIndex={-1}
+      >
+        <Outlet key={`${pathname}:${user?.id ?? 'guest'}`} />
       </main>
+      <SiteFooter />
+      <ScrollRestoration />
     </>
   );
 }

@@ -1,0 +1,119 @@
+.booking-steps {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  padding: 12px 0 20px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+.booking-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: var(--font-small);
+  position: relative;
+}
+.booking-steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -62px;
+  width: 44px;
+  height: 1px;
+  background: var(--border);
+}
+.booking-steps__number {
+  display: flex;
+  width: 29px;
+  height: 29px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: var(--font-small);
+  letter-spacing: normal;
+}
+.booking-steps .is-current {
+  color: var(--accent);
+  font-weight: 600;
+}
+.booking-steps .is-current .booking-steps__number {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.booking-steps .is-complete {
+  color: var(--accent);
+}
+.booking-steps .is-complete .booking-steps__number {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+}
+@media (max-width: 767px) {
+  .booking-steps {
+    gap: 28px;
+    padding: 8px 0 24px;
+    margin-bottom: 24px;
+    justify-content: space-between;
+  }
+  .booking-steps li {
+    flex-direction: column;
+    gap: 7px;
+    font-size: var(--font-small);
+  }
+  .booking-steps li:not(:last-child)::after {
+    top: 15px;
+    left: calc(50% + 30px);
+    right: auto;
+    width: calc((100vw - 200px) / 3);
+  }
+}
+.booking-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.booking-heading h1 {
+  font-size: 28px;
+}
+.booking-heading p {
+  font-size: var(--font-small);
+  color: var(--muted);
+  margin: 0;
+}
+.booking-heading > .status {
+  white-space: nowrap;
+}
+.selection-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+.selection-total > span {
+  font-size: var(--font-small);
+}
+.selection-total strong {
+  font-size: 26px;
+  color: var(--accent);
+  letter-spacing: normal;
+}
+@media (max-width: 767px) {
+  .booking-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .booking-heading h1 {
+    font-size: 24px;
+  }
+  .booking-heading p {
+    font-size: var(--font-small);
+  }
+  .booking-heading > .status {
+    display: none;
+  }
+}

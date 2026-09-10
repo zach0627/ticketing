@@ -1,0 +1,160 @@
+.featured-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 0 0 6px;
+}
+.featured-track {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: max-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.featured-banner,
+.featured-preview {
+  position: relative;
+  display: block;
+  width: min(800px, calc(100vw - 64px));
+  aspect-ratio: 8/5;
+  flex: none;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+}
+.featured-banner picture,
+.featured-preview picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.featured-banner img,
+.featured-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+}
+.featured-preview {
+  padding: 0;
+  border: 0;
+  opacity: 0.4;
+  transform: scale(0.94);
+}
+.featured-preview:hover {
+  opacity: 0.7;
+}
+.featured-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 52px 28px 24px;
+  background: linear-gradient(transparent, #ffffffed 38%, #fffffff5);
+  color: #252525;
+}
+.featured-caption h1 {
+  font-size: 28px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: normal;
+  margin: 0 0 10px;
+}
+.featured-caption > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+}
+.featured-caption > div > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.carousel-arrow {
+  position: absolute;
+  top: calc(50% - 40px);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffffe0;
+  color: #474747;
+}
+.carousel-arrow:hover {
+  background: #fff;
+}
+.carousel-arrow--previous {
+  left: max(18px, calc(50% - 460px));
+}
+.carousel-arrow--next {
+  right: max(18px, calc(50% - 460px));
+}
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+.carousel-dots button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.carousel-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #c4c4c4;
+}
+.carousel-dots .is-active span {
+  background: #579ebc;
+}
+.featured-placeholder {
+  min-height: 300px;
+  background: #fff;
+}
+@media (max-width: 767px) {
+  .featured-track {
+    gap: 12px;
+  }
+  .featured-banner,
+  .featured-preview {
+    width: calc(100vw - 32px);
+    aspect-ratio: 8/6;
+  }
+  .featured-caption {
+    padding: 35px 16px 16px;
+  }
+  .featured-caption h1 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  .featured-caption > div {
+    font-size: 14px;
+  }
+  .carousel-arrow {
+    width: 34px;
+    height: 34px;
+    top: calc(50% - 46px);
+  }
+  .carousel-arrow--previous {
+    left: 4px;
+  }
+  .carousel-arrow--next {
+    right: 4px;
+  }
+}

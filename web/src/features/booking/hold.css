@@ -1,0 +1,226 @@
+.hold {
+  max-width: 1040px;
+  margin-inline: auto;
+}
+.hold-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+.hold-main {
+  display: grid;
+  gap: 24px;
+}
+.hold h2 {
+  font-size: 18px;
+}
+.hold-event {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.hold-event picture {
+  width: 130px;
+  flex: none;
+}
+.hold-event img {
+  width: 130px;
+  height: auto;
+  aspect-ratio: 3/2;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.hold-event h2 {
+  font-size: 17px;
+  margin: 0 0 8px;
+}
+.hold-event p {
+  font-size: var(--font-small);
+  color: var(--muted);
+  margin: 0;
+}
+.hold-event .badge {
+  margin-bottom: 8px;
+}
+.countdown-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 18px 22px;
+  border-radius: 8px;
+  margin-bottom: 28px;
+}
+.countdown-banner > div {
+  flex: 1;
+}
+.countdown-banner strong {
+  font-size: var(--font-body);
+  color: var(--text);
+}
+.countdown-banner p {
+  font-size: var(--font-small);
+  margin: 2px 0 0;
+  color: var(--muted);
+}
+.countdown-banner time {
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: normal;
+}
+.countdown-banner.is-ending {
+  background: #fff5e6;
+  color: #9f6420;
+  border-color: #ebd8b8;
+}
+.hold-receipt {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 26px;
+  background: #fff;
+  position: sticky;
+  top: 110px;
+}
+.hold-receipt__line {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-body);
+  color: var(--text);
+  margin: 15px 0;
+}
+.hold-receipt__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding: 20px 0;
+  margin-top: 20px;
+  font-size: var(--font-body);
+  color: var(--text);
+}
+.hold-receipt__total strong {
+  font-size: 28px;
+  color: var(--accent);
+}
+.hold-receipt > .cta {
+  width: 100%;
+  margin: 5px 0;
+}
+.hold-receipt > .text-button {
+  display: block;
+  margin: 8px auto;
+}
+.hold-receipt > .page-header__note {
+  font-size: var(--font-small);
+  text-align: center;
+  margin-top: 16px;
+}
+.payment-notice {
+  font-size: var(--font-small);
+  color: var(--muted);
+}
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  background: var(--accent-soft);
+  border-radius: 7px;
+}
+.payment-method > .icon {
+  color: var(--accent);
+}
+.payment-method p {
+  margin: 0;
+  font-size: var(--font-small);
+  color: var(--muted);
+}
+.payment-method strong {
+  font-size: var(--font-body);
+  color: var(--text);
+}
+.payment-test {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-size: var(--font-small);
+  color: var(--muted);
+}
+.payment-test summary {
+  cursor: pointer;
+}
+.payment-test p {
+  margin: 10px 0;
+}
+.payment-test .cta {
+  font-size: var(--font-small);
+  width: 100%;
+}
+.hold-status-panel {
+  padding: 56px;
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.hold-status-panel > .icon {
+  color: var(--accent);
+  margin-bottom: 22px;
+}
+.hold-status-panel h1 {
+  font-size: 26px;
+}
+.hold-status-panel p {
+  color: var(--muted);
+}
+@media (max-width: 1023px) {
+  .hold-layout {
+    grid-template-columns: minmax(0, 1fr) 300px;
+  }
+}
+@media (max-width: 767px) {
+  .hold-layout {
+    display: block;
+  }
+  .hold-receipt {
+    margin-top: 24px;
+    position: static;
+    padding: 22px;
+  }
+  .hold-event {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .hold-event picture,
+  .hold-event img {
+    width: 95px;
+  }
+  .hold-event h2 {
+    font-size: 15px;
+  }
+  .hold-event p {
+    font-size: var(--font-small);
+  }
+  .countdown-banner {
+    padding: 16px;
+    gap: 10px;
+  }
+  .countdown-banner strong {
+    font-size: var(--font-body);
+    color: var(--text);
+  }
+  .countdown-banner time {
+    font-size: 28px;
+  }
+  .countdown-banner > .icon {
+    display: none;
+  }
+  .hold-status-panel {
+    padding: 40px 20px;
+  }
+}

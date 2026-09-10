@@ -1,73 +1,150 @@
+import './eventDetail.css';
+import { EventInformation } from './EventInformation';
+import { EventTabs } from './EventTabs';
 import { Link, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { catalogApi } from './api';
 import { ErrorMessage, Spinner } from '../../shared/ui/States';
-import { describeSalesStatus, formatPrice, formatTaipei } from '../../shared/utils/format';
+import { Icon } from '../../shared/ui/Icon';
+import { EventImage } from '../../shared/ui/EventImage';
+import {
+  describeSalesStatus,
+  formatPrice,
+  formatTaipei,
+} from '../../shared/utils/format';
 
 export function EventDetailPage() {
   const { code = '' } = useParams();
-
-  const { data, isPending, error } = useQuery({
+  const { data, isPending, error, refetch } = useQuery({
     queryKey: ['event', code],
     queryFn: ({ signal }) => catalogApi.getEvent(code, signal),
   });
-
   if (isPending) return <Spinner />;
-  if (error) return <ErrorMessage error={error} />;
-
+  if (error)
+    return <ErrorMessage error={error} onRetry={() => void refetch()} />;
   const { performance } = data;
   const onSale = performance.salesStatus === 'OnSale';
+  const minPrice = Math.min(...data.sections.map((s) => s.price));
+  const purchaseLink = `/performances/${performance.id}/seats`;
 
   return (
     <article className="detail">
-      <Link className="back-link" to="/">← 回到活動列表</Link>
-
-      <img className="detail__image" src={data.imagePath} alt={data.title} />
-
-      <h1>{data.title}</h1>
-      <p className="detail__performer">{data.performer}・{data.genre}</p>
-      <p className="detail__description">{data.description}</p>
-
-      <dl className="detail__facts">
-        <div><dt>時間</dt><dd>{formatTaipei(performance.startsAtUtc)}</dd></div>
-        <div><dt>場館</dt><dd>{performance.venue}（{performance.city}）</dd></div>
-        <div><dt>長度</dt><dd>{performance.durationMinutes} 分鐘</dd></div>
-        <div><dt>售票狀態</dt><dd>{describeSalesStatus(performance.salesStatus)}</dd></div>
-        <div>
-          <dt>每人上限</dt>
-          <dd>
-            {data.maxTicketsPerBuyer} 張
-            {data.allowsContiguousAllocation ? '（可自動連號配位）' : '（需自行選位）'}
-          </dd>
+      <nav className="breadcrumb" aria-label="麵包屑">
+        <Link to="/">首頁</Link>
+        <Icon name="chevron" size={12} />
+        <Link to={`/?category=${data.category}#events`}>
+          {data.category === 'Concert' ? '演唱會' : '運動賽事'}
+        </Link>
+        <Icon name="chevron" size={12} />
+        <span>活動詳情</span>
+      </nav>
+      <div className="detail-hero">
+        <div className="detail-hero__image">
+          <EventImage
+            src={data.imagePath}
+            alt={data.title}
+            fetchPriority="high"
+          />
         </div>
-      </dl>
-
-      <h2>票區與票價</h2>
-      <table className="sections">
-        <thead>
-          <tr><th>票區</th><th>名稱</th><th>票價</th><th>座位數</th></tr>
-        </thead>
-        <tbody>
-          {data.sections.map((s) => (
-            <tr key={s.id}>
-              <td>{s.code}</td>
-              <td>{s.name}</td>
-              <td>{formatPrice(s.price, data.currency)}</td>
-              <td>{s.rowCount * s.seatsPerRow}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {onSale ? (
-        <Link className="cta" to={`/performances/${performance.id}/seats`}>查看座位圖</Link>
-      ) : (
-        <p className="cta cta--disabled">
-          {describeSalesStatus(performance.salesStatus)}
-          {performance.salesStatus === 'NotYetOnSale' &&
-            `，${formatTaipei(performance.salesOpensAtUtc)} 開賣`}
-        </p>
-      )}
+        <div className="detail-hero__content">
+          <div className="detail-hero__badges">
+            <span className={`badge badge--${data.category.toLowerCase()}`}>
+              {data.genre}
+            </span>
+            <span
+              className={`status status--${performance.salesStatus.toLowerCase()}`}
+            >
+              {describeSalesStatus(performance.salesStatus)}
+            </span>
+          </div>
+          <h1>{data.title}</h1>
+          <p className="detail__performer">{data.performer}</p>
+          <dl className="event-facts">
+            <div>
+              <dt>活動時間</dt>
+              <dd>{formatTaipei(performance.startsAtUtc)}</dd>
+            </div>
+            <div>
+              <dt>活動地點</dt>
+              <dd>
+                {performance.venue}
+                <span>{performance.city}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>演出長度</dt>
+              <dd>約 {performance.durationMinutes} 分鐘</dd>
+            </div>
+          </dl>
+          <div className="detail-hero__purchase">
+            <div>
+              <span className="muted">票價</span>
+              <strong>
+                {formatPrice(minPrice, data.currency)} <small>起</small>
+              </strong>
+            </div>
+            {onSale ? (
+              <Link className="cta" to={purchaseLink}>
+                立即購票
+                <Icon name="arrow" size={18} />
+              </Link>
+            ) : (
+              <span className="cta cta--disabled">
+                {describeSalesStatus(performance.salesStatus)}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      <EventTabs />
+      <div className="detail-layout">
+        <EventInformation data={data} />
+        <aside className="detail-sidebar">
+          <h2>購票資訊</h2>
+          <p>
+            選好喜歡的票區，
+            <br />
+            前往座位圖開始選位。
+          </p>
+          <div className="detail-sidebar__price">
+            {formatPrice(minPrice, data.currency)} <small>起</small>
+          </div>
+          {onSale ? (
+            <Link className="cta" to={purchaseLink}>
+              選擇座位
+              <Icon name="arrow" size={17} />
+            </Link>
+          ) : (
+            <p className="notice">
+              {performance.salesStatus === 'NotYetOnSale'
+                ? `${formatTaipei(performance.salesOpensAtUtc)} 開賣`
+                : describeSalesStatus(performance.salesStatus)}
+            </p>
+          )}
+          <small>
+            <Icon name="shield" size={14} />
+            每人限購 {data.maxTicketsPerBuyer} 張
+          </small>
+        </aside>
+      </div>
+      <div className="detail-mobile-purchase">
+        <div>
+          <span>{describeSalesStatus(performance.salesStatus)}</span>
+          <strong>
+            {formatPrice(minPrice, data.currency)} <small>起</small>
+          </strong>
+        </div>
+        {onSale ? (
+          <Link className="cta" to={purchaseLink}>
+            立即購票
+            <Icon name="arrow" size={17} />
+          </Link>
+        ) : (
+          <span className="cta cta--disabled">
+            {describeSalesStatus(performance.salesStatus)}
+          </span>
+        )}
+      </div>
     </article>
   );
 }

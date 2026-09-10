@@ -7,6 +7,16 @@ export function formatTaipei(utcIso: string): string {
   }).format(new Date(utcIso));
 }
 
+export function formatTaipeiDate(utcIso: string): string {
+  return new Intl.DateTimeFormat('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  }).format(new Date(utcIso));
+}
+
 export function formatPrice(amount: number, currency = 'TWD'): string {
   return new Intl.NumberFormat('zh-TW', {
     style: 'currency',
@@ -22,4 +32,14 @@ const salesStatusText: Record<string, string> = {
   Paused: '暫停售票',
 };
 
-export const describeSalesStatus = (status: string): string => salesStatusText[status] ?? status;
+export const describeSalesStatus = (status: string): string =>
+  salesStatusText[status] ?? status;
+
+export function formatCalendarDate(utcIso: string): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(utcIso));
+}

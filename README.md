@@ -14,7 +14,7 @@
 
 ### 活動列表
 
-瀏覽 15 場活動，並依演唱會或運動賽事篩選。
+瀏覽 12 場演唱會與 3 場運動賽事，支援中文搜尋、城市／售票狀態篩選及日期／票價排序。
 
 ![活動列表頁：15 場活動，可依演唱會或運動賽事篩選](docs/screenshots/01-home.png)
 
@@ -30,11 +30,17 @@
 
 ![選座頁：顯示票區、排號、價格與座位狀態](docs/screenshots/03-seats.png)
 
+### 付款與票券
+
+確認座位、金額與剩餘保留時間，完成模擬付款後取得票券；手機亦有完整購票操作。
+
+![付款完成與電子票券](docs/screenshots/05-tickets.png)
+
 ## 功能
 
 ### 使用者
 
-- 依分類瀏覽活動、查看場次與票區。
+- 依分類、城市、售票狀態篩選活動，搜尋演出者與活動名稱，查看場次與票區。
 - 使用 Email／密碼或 Google 登入。
 - 手動選位或由系統安排連號座位。
 - 保留座位五分鐘，期間可完成模擬付款或取消保留。
@@ -77,11 +83,13 @@ flowchart LR
 | Infrastructure | EF Core、SQL Server、Repository／DAO、身分與背景處理 |
 | Tests | xUnit、NSubstitute、WebApplicationFactory、Testcontainers |
 
+前端依 `app／features／shared` 切分責任。各功能自帶元件、hooks、API 與 CSS；全域只保留色彩字級 tokens、基礎樣式和共用版面。路由延後載入，下拉選單使用 Radix Select，Roboto 字型由本站提供。搜尋組字、選位與金額計算、倒數及操作恢復均有前端測試。
+
 購票寫入固定依序取得場次與買家 gate，再檢查冪等紀錄、重新載入規則所需資料並執行條件更新；整段在同一個資料庫交易中完成。Controller 不直接操作 `DbContext`，Application 也不依賴 EF Core 或 `HttpContext`。
 
 ## 快速開始
 
-需求：.NET 10 SDK、Node.js 22+ 與 SQL Server。執行 API 整合測試時另需 Docker；SQL Server 容器的權威結果以 CI 的 x86-64 runner 為準。
+需求：.NET 10 SDK、Node.js 22.12+ 與 SQL Server。執行 API 整合測試時另需 Docker；SQL Server 容器的權威結果以 CI 的 x86-64 runner 為準。
 
 ### 1. 設定後端
 
@@ -145,6 +153,7 @@ dotnet test tests/Ticketing.Api.Tests --configuration Release
 ```bash
 cd web
 npm ci
+npm test
 npm run lint
 npm run build
 ```

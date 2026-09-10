@@ -116,7 +116,9 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - name: Type check
-        run: npx tsc --noEmit
+      - name: Frontend behavior tests
+        run: npm test
+      - name: Frontend lint
+        run: npm run lint
       - name: Build
         run: npm run build

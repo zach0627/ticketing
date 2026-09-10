@@ -27,6 +27,7 @@ export function GoogleSignInButton({
 
   return (
     <div className="auth-form__google">
+      <span className="auth-divider">或使用 Google 帳號</span>
       <GoogleLogin
         onSuccess={async (credentialResponse) => {
           const idToken = credentialResponse.credential;
@@ -40,7 +41,9 @@ export function GoogleSignInButton({
             onSuccess();
           } catch (error) {
             onFailure(
-              error instanceof ApiError ? error.message : 'Google 登入失敗，請稍後再試。',
+              error instanceof ApiError
+                ? error.message
+                : 'Google 登入失敗，請稍後再試。',
             );
           }
         }}

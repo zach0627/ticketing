@@ -1,0 +1,22 @@
+:root {
+  --font-body: 16px;
+  --font-small: 14px;
+  --bg: #fff;
+  --surface: #fff;
+  --surface-2: #f7f8fa;
+  --text: #212121;
+  --muted: #757575;
+  --border: #e4e8ed;
+  --accent: #357f9f;
+  --accent-hover: #256780;
+  --accent-soft: #edf8fc;
+  --warm: #f5f2eb;
+  --danger: #a53731;
+  --available: #fff;
+  --held: #f4c968;
+  --sold: #e5e5e5;
+  --radius: 12px;
+  color-scheme: light;
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

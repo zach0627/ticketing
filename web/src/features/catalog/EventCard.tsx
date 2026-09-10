@@ -1,26 +1,30 @@
 import { Link } from 'react-router';
 import type { EventCardDto } from '../../shared/api/types';
-import { describeSalesStatus, formatPrice, formatTaipei } from '../../shared/utils/format';
+import { formatCalendarDate, formatPrice } from '../../shared/utils/format';
+import { Icon } from '../../shared/ui/Icon';
+import { EventImage } from '../../shared/ui/EventImage';
+import './eventCard.css';
 
 export function EventCard({ event }: { event: EventCardDto }) {
   return (
-    <Link className="card" to={`/events/${event.code}`}>
-      <img className="card__image" src={event.imagePath} alt={event.title} loading="lazy" />
-      <div className="card__body">
-        <span className={`badge badge--${event.category.toLowerCase()}`}>
-          {event.category === 'Concert' ? '演唱會' : '運動賽事'}
-        </span>
-        <h2 className="card__title">{event.title}</h2>
-        <p className="card__performer">{event.performer}</p>
-        <p className="card__meta">
-          {formatTaipei(event.startsAtUtc)}・{event.city}
-        </p>
-        <p className="card__footer">
-          <span className="card__price">{formatPrice(event.minPrice, event.currency)} 起</span>
-          <span className={`status status--${event.salesStatus.toLowerCase()}`}>
-            {describeSalesStatus(event.salesStatus)}
+    <Link className="event-card" to={`/events/${event.code}`}>
+      <EventImage
+        className="event-card__image"
+        src={event.imagePath}
+        alt=""
+        loading="lazy"
+      />
+      <div className="event-card__body">
+        <h3 className="event-card__title">{event.title}</h3>
+        <div className="event-card__meta">
+          <span>
+            <Icon name="calendar" size={16} />
+            {formatCalendarDate(event.startsAtUtc)}
           </span>
-        </p>
+          <span className="event-card__price">
+            {formatPrice(event.minPrice, event.currency)} 起
+          </span>
+        </div>
       </div>
     </Link>
   );

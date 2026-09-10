@@ -1,0 +1,68 @@
+.guide-page {
+  max-width: 1020px;
+  margin: auto;
+  padding: 24px 0;
+}
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.guide-grid section {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  padding: 28px;
+}
+.guide-grid .icon {
+  color: var(--accent);
+  margin-bottom: 28px;
+}
+.guide-grid h2 {
+  font-size: 18px;
+}
+.guide-grid p {
+  font-size: var(--font-small);
+  color: var(--muted);
+  margin: 0;
+}
+.faq {
+  max-width: 820px;
+  margin: 54px 0 36px;
+}
+.faq details {
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+}
+.faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding-right: 16px;
+}
+.faq details p {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 16px 22px 0;
+  margin-bottom: 0;
+}
+.not-found {
+  text-align: center;
+  padding: 72px 20px;
+}
+.not-found > .icon {
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.not-found p {
+  color: var(--muted);
+}
+.not-found .cta {
+  margin-top: 16px;
+}
+@media (max-width: 767px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+  .guide-grid .icon {
+    margin-bottom: 16px;
+  }
+}

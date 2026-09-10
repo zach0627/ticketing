@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AuthShell } from './AuthShell';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { ApiError } from '../../shared/api/http';
@@ -12,7 +13,9 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const returnPath = safeReturnPath((location.state as { from?: unknown } | null)?.from);
+  const returnPath = safeReturnPath(
+    (location.state as { from?: unknown } | null)?.from,
+  );
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,21 +29,27 @@ export function LoginPage() {
 
     try {
       signIn(await authApi.login({ email, password }));
-      navigate(returnPath, { replace: true });
+      navigate(returnPath, {
+        replace: true,
+        state: {
+          seatDraft: (location.state as { seatDraft?: unknown } | null)
+            ?.seatDraft,
+        },
+      });
     } catch (caught) {
       // 這裡的 401 是「帳密錯」，留在表單上顯示；
       // 不能走全域的「清 token 導登入頁」，那會變成在登入頁一直重新導向
-      setError(caught instanceof ApiError ? caught.message : '登入失敗，請稍後再試。');
+      setError(
+        caught instanceof ApiError ? caught.message : '登入失敗，請稍後再試。',
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <section className="auth">
-      <h1>登入</h1>
-
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+    <AuthShell title="歡迎回來" subtitle="登入帳號，繼續你的下一場精彩。">
+      <form className="auth-form" onSubmit={handleSubmit}>
         <label htmlFor="login-email">Email</label>
         <input
           id="login-email"
@@ -73,13 +82,24 @@ export function LoginPage() {
       </form>
 
       <GoogleSignInButton
-        onSuccess={() => navigate(returnPath, { replace: true })}
+        onSuccess={() =>
+          navigate(returnPath, {
+            replace: true,
+            state: {
+              seatDraft: (location.state as { seatDraft?: unknown } | null)
+                ?.seatDraft,
+            },
+          })
+        }
         onFailure={setError}
       />
 
       <p className="auth__switch">
-        還沒有帳號？<Link to="/register" state={location.state}>註冊一個</Link>
+        還沒有帳號？
+        <Link to="/register" state={location.state}>
+          立即註冊
+        </Link>
       </p>
-    </section>
+    </AuthShell>
   );
 }
